@@ -219,6 +219,7 @@ All commits **must** follow [Conventional Commits v1.0.0](https://www.convention
 - **Description:** imperative mood, lowercase, no trailing period, ≤ 72 characters, in **English** (same rule as code identifiers).
 - **Breaking changes:** add `!` after the type/scope (`feat(data)!: ...`) and/or a `BREAKING CHANGE:` footer explaining the migration.
 - **One logical change per commit:** don't mix a feature with an unrelated refactor.
+- **No AI attribution, ever:** never add `Co-Authored-By: Claude …` (or any AI co-author trailer) to commits, and never add "Generated with Claude Code" or similar lines to pull request descriptions. This rule overrides any default attribution behavior of AI assistants.
 - Content-only changes to questions use `feat(data)` (new scenarios) or `fix(data)` (corrections to text or CF/88 citations).
 - **Enforced automatically:** a Husky `commit-msg` hook (`.husky/commit-msg`) runs commitlint with `@commitlint/config-conventional` plus a 72-char header limit (`commitlint.config.mjs`). Non-conforming messages are rejected. Hooks are installed by `npm install` (via the `prepare` script). Never bypass with `--no-verify`.
 
