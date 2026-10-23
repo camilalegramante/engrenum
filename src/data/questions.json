@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "sphere": "municipal",
+    "prompt": "A rua da sua casa está cheia de buracos, danificando veículos e colocando pedestres em risco. Quem tem a obrigação de mandar a equipe de obras e recapear o asfalto?",
+    "options": [
+      { "id": "a", "text": "Prefeito / Secretaria de Obras", "isCorrect": true },
+      { "id": "b", "text": "Vereador do bairro", "isCorrect": false },
+      { "id": "c", "text": "Governador do Estado", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 30, V da CF/88",
+    "explanation": "A manutenção de vias públicas urbanas é serviço de interesse local, responsabilidade direta da Prefeitura. O vereador pode solicitar ou cobrar, mas não administra máquinas de asfalto nem o orçamento das obras."
+  },
+  {
+    "id": 2,
+    "sphere": "municipal",
+    "prompt": "Você foi à Unidade Básica de Saúde (Postinho) do seu bairro e faltou dipirona e curativos básicos. A gestão do posto e a compra desses insumos cabem a quem?",
+    "options": [
+      { "id": "a", "text": "Presidente da República", "isCorrect": false },
+      { "id": "b", "text": "Prefeito / Secretaria de Saúde", "isCorrect": true },
+      { "id": "c", "text": "Deputado Estadual", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 30, VII da CF/88 e Lei do SUS",
+    "explanation": "A gestão da atenção básica (postos de saúde e remédios essenciais do cotidiano) é competência do município. O governo federal repassa recursos, mas quem estoca e administra o postinho é a Prefeitura."
+  },
+  {
+    "id": 3,
+    "sphere": "municipal",
+    "prompt": "Em época de campanha, um candidato a vereador promete: 'Se eu for eleito, vou construir uma nova creche municipal no nosso bairro!'. Essa promessa é legalmente viável para o cargo dele?",
+    "options": [
+      { "id": "a", "text": "Sim, vereadores têm poder de ordenar obras na cidade.", "isCorrect": false },
+      { "id": "b", "text": "Não, ordenar obras e gerir o orçamento é exclusividade da Prefeitura.", "isCorrect": true },
+      { "id": "c", "text": "Sim, desde que o Governador assine junto.", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 61, § 1º, II c/c Art. 29 da CF/88",
+    "explanation": "Falso! Projetos que criam novas despesas públicas e organizam a administração são de iniciativa privativa do Prefeito. O candidato a vereador está prometendo uma ação executiva que a lei o proíbe de realizar."
+  },
+  {
+    "id": 4,
+    "sphere": "municipal",
+    "prompt": "A creche da rede municipal está com atraso crônico na entrega de alimentos e servindo merenda de baixa qualidade. Quem contrata as empresas fornecedoras e administra a compra?",
+    "options": [
+      { "id": "a", "text": "Secretaria Municipal de Educação (Prefeitura)", "isCorrect": true },
+      { "id": "b", "text": "Ministério da Educação (Governo Federal)", "isCorrect": false },
+      { "id": "c", "text": "Juiz da Vara da Infância", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 211, § 2º da CF/88",
+    "explanation": "Os municípios atuam prioritariamente na Educação Infantil e no Ensino Fundamental. Licitações, contratação de fornecedores e controle das cozinhas escolares são atribuições do Poder Executivo municipal."
+  },
+  {
+    "id": 5,
+    "sphere": "municipal",
+    "prompt": "A prefeitura gastou milhões reformando uma praça central, mas o piso rachou em semanas e há suspeita de superfaturamento. Qual órgão tem o dever oficial de fiscalizar esse contrato?",
+    "options": [
+      { "id": "a", "text": "Câmara Municipal (Vereadores)", "isCorrect": true },
+      { "id": "b", "text": "Polícia Militar", "isCorrect": false },
+      { "id": "c", "text": "Senado Federal", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 31 da CF/88",
+    "explanation": "A principal missão do vereador, além de propor leis, é a fiscalização contábil, financeira e operacional da Prefeitura (com apoio do Tribunal de Contas). Contratos suspeitos na cidade devem ser cobrados na Câmara."
+  },
+  {
+    "id": 6,
+    "sphere": "municipal",
+    "prompt": "O lixo da sua rua não é recolhido há dias e os sacos estão acumulados na calçada. A coleta de lixo domiciliar e a limpeza das ruas são contratadas por qual esfera?",
+    "options": [
+      { "id": "a", "text": "Governo do Estado", "isCorrect": false },
+      { "id": "b", "text": "Prefeitura Municipal", "isCorrect": true },
+      { "id": "c", "text": "Governo Federal", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 30, V da CF/88",
+    "explanation": "A coleta de lixo, varrição e destinação de resíduos sólidos urbanos são serviços essenciais de interesse local, administrados diretamente pelo Poder Executivo Municipal."
+  },
+  {
+    "id": 7,
+    "sphere": "municipal",
+    "prompt": "Os ônibus municipais estão sempre lotados e os passageiros querem novas linhas e horários no bairro. Quem define as rotas e fiscaliza o contrato das empresas de transporte coletivo urbano?",
+    "options": [
+      { "id": "a", "text": "Prefeitura / Secretaria de Transportes", "isCorrect": true },
+      { "id": "b", "text": "Polícia Rodoviária Federal", "isCorrect": false },
+      { "id": "c", "text": "Deputados Estaduais", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 30, V da CF/88",
+    "explanation": "Organizar e prestar o serviço de transporte coletivo intramunicipal é atribuição exclusiva do Município. O Executivo concede as linhas, assina as concessões e define trajetos e tarifas."
+  },
+  {
+    "id": 8,
+    "sphere": "municipal",
+    "prompt": "Um morador decide construir um muro que invade a calçada e bloqueia a passagem de pedestres. Qual órgão público tem a autoridade de fiscalizar e embargar a obra?",
+    "options": [
+      { "id": "a", "text": "Fiscalização de Posturas e Obras da Prefeitura", "isCorrect": true },
+      { "id": "b", "text": "Câmara dos Deputados", "isCorrect": false },
+      { "id": "c", "text": "Corpo de Bombeiros", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 30, VIII da CF/88",
+    "explanation": "Promover o ordenamento territorial, fiscalizar loteamentos e garantir o cumprimento do plano diretor e das regras de calçadas são deveres da fiscalização da Prefeitura Municipal."
+  },
+  {
+    "id": 9,
+    "sphere": "municipal",
+    "prompt": "Todo início de ano você precisa pagar o IPTU do seu imóvel. Para onde vai esse dinheiro e quem define as alíquotas do imposto?",
+    "options": [
+      { "id": "a", "text": "Vai direto para o Presidente da República.", "isCorrect": false },
+      { "id": "b", "text": "Arrecadado pela Prefeitura, com alíquotas aprovadas pela Câmara de Vereadores.", "isCorrect": true },
+      { "id": "c", "text": "Arrecadado pelo Governo do Estado para manter a Polícia Militar.", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 156, I da CF/88",
+    "explanation": "O IPTU é um tributo exclusivamente municipal. A cobrança é feita pela Prefeitura, mas o cálculo e a planta de valores precisam de aprovação legislativa da Câmara dos Vereadores."
+  },
+  {
+    "id": 10,
+    "sphere": "municipal",
+    "prompt": "Os moradores querem criar uma lei tornando obrigatório o plantio de árvores em calçadas largas do município. A aprovação e votação dessa nova norma é responsabilidade de quem?",
+    "options": [
+      { "id": "a", "text": "Câmara Municipal (Vereadores)", "isCorrect": true },
+      { "id": "b", "text": "Secretaria de Obras", "isCorrect": false },
+      { "id": "c", "text": "Tribunal de Justiça", "isCorrect": false }
+    ],
+    "constitutionalArticle": "Art. 30, I da CF/88",
+    "explanation": "Criar, debater e votar as leis que valem para todo o território municipal é o papel central dos vereadores. Após aprovação na Câmara, a lei vai para sanção ou veto do Prefeito."
+  }
+]
