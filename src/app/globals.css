@@ -10,6 +10,7 @@
   --color-rep-navy-light: #1c2541;
   --color-rep-slate: #3a506b;
   --color-rep-gold: #e09f3e;
+  --color-rep-gold-light: #f4a261;
   --color-rep-emerald: #2a9d8f;
   --color-rep-emerald-dark: #1b4332;
   --color-rep-cream: #f8f9fa;
@@ -24,6 +25,7 @@
   --animate-drawer: slide-in-bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-pulse-ring: pulse-ring 2.2s infinite;
   --animate-shake: shake 0.4s ease-in-out;
+  --animate-bob: bob 1.6s ease-in-out infinite;
 
   @keyframes slide-in-bottom {
     from {
@@ -43,6 +45,16 @@
     }
     100% {
       box-shadow: 0 0 0 0 rgba(224, 159, 62, 0);
+    }
+  }
+
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translate(-50%, 0);
+    }
+    50% {
+      transform: translate(-50%, -4px);
     }
   }
 

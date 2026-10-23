@@ -7,6 +7,6 @@ vi.mock("@/lib/sound", () => ({ playSound: vi.fn() }));
 describe("Home page", () => {
   it("renders the Engrenum app", () => {
     render(<Home />);
-    expect(screen.getByRole("heading", { level: 1, name: "Quem Manda Aqui?" })).toBeVisible();
+    expect(screen.getByRole("region", { name: "No Meu Bairro" })).toBeVisible();
   });
 });

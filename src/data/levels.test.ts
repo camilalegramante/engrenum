@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { INITIAL_LIVES, LEVELS, SPHERE_LABELS, XP_PER_CORRECT_ANSWER, getCivicTitle, getRankByXp } from "./levels";
+import {
+  CHEST_XP,
+  INITIAL_LIVES,
+  LEVELS,
+  RANKS,
+  SPHERE_LABELS,
+  XP_PER_CORRECT_ANSWER,
+  chunkIntoLessons,
+  getCivicTitle,
+  getRankByXp,
+  getRankProgress,
+} from "./levels";
 
 const allQuestions = LEVELS.flatMap((level) => level.questions);
 
@@ -67,12 +78,53 @@ describe("LEVELS", () => {
   it("ships the municipal level with its 10 scenarios", () => {
     expect(LEVELS[0].questions).toHaveLength(10);
   });
+
+  it.each(LEVELS)("level $id places every question in exactly one lesson", (level) => {
+    const lessonQuestionIds = level.lessons.flatMap((lesson) => lesson.questions.map((q) => q.id));
+    expect([...lessonQuestionIds].sort((a, b) => a - b)).toEqual(level.questions.map((q) => q.id).sort((a, b) => a - b));
+  });
+
+  it("splits the municipal level into short themed lessons", () => {
+    const [municipal] = LEVELS;
+    expect(municipal.lessons.map((lesson) => lesson.title)).toEqual([
+      "Serviços do bairro",
+      "Saúde, escola e calçada",
+      "Leis e promessas",
+      "De olho no dinheiro",
+    ]);
+    for (const lesson of municipal.lessons) {
+      expect(lesson.questions.length).toBeGreaterThanOrEqual(2);
+      expect(lesson.questions.length).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it("gives every level a mascot tip", () => {
+    for (const level of LEVELS) expect(level.mascotTip.trim()).not.toBe("");
+  });
+});
+
+describe("chunkIntoLessons", () => {
+  const questions = LEVELS[0].questions.slice(0, 7);
+
+  it("groups questions into numbered lessons of the given size", () => {
+    const lessons = chunkIntoLessons("state", questions, 3);
+    expect(lessons.map((l) => [l.id, l.title, l.questions.length])).toEqual([
+      ["state-1", "Lição 1", 3],
+      ["state-2", "Lição 2", 3],
+      ["state-3", "Lição 3", 1],
+    ]);
+  });
+
+  it("returns no lessons for a level without questions", () => {
+    expect(chunkIntoLessons("state", [])).toEqual([]);
+  });
 });
 
 describe("game constants", () => {
-  it("defines 3 lives and 15 XP per correct answer", () => {
+  it("defines 3 lives, 15 XP per correct answer and a 20 XP chest", () => {
     expect(INITIAL_LIVES).toBe(3);
     expect(XP_PER_CORRECT_ANSWER).toBe(15);
+    expect(CHEST_XP).toBe(20);
   });
 
   it("labels every sphere in pt-BR", () => {
@@ -91,6 +143,27 @@ describe("getRankByXp", () => {
     [300, "Constitucionalista Pleno"],
   ])("returns the rank for %i XP", (xp, rank) => {
     expect(getRankByXp(xp)).toBe(rank);
+  });
+});
+
+describe("getRankProgress", () => {
+  it("lists ranks in ascending XP order starting at zero", () => {
+    expect(RANKS[0].minXp).toBe(0);
+    for (let i = 1; i < RANKS.length; i++) expect(RANKS[i].minXp).toBeGreaterThan(RANKS[i - 1].minXp);
+  });
+
+  it("reports how far the player is from the next rank", () => {
+    expect(getRankProgress(0)).toEqual({ name: "Eleitor Curioso", nextName: "Fiscal Cívico Júnior", xpToNext: 60, percent: 0 });
+    expect(getRankProgress(105)).toEqual({
+      name: "Fiscal Cívico Júnior",
+      nextName: "Líder Comunitário",
+      xpToNext: 45,
+      percent: 50,
+    });
+  });
+
+  it("caps at the top rank", () => {
+    expect(getRankProgress(999)).toEqual({ name: "Constitucionalista Pleno", nextName: null, xpToNext: 0, percent: 100 });
   });
 });
 

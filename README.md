@@ -26,14 +26,16 @@ O **Engrenum** é um Progressive Web App (PWA) que transforma essas dúvidas em 
 
 ## Como funciona
 
-1. **Trilha Federativa:** o jogador avança por níveis: *No Meu Bairro* (Municipal), *Ordem e Região* (Estadual), *Soberania e Leis Nacionais* (Federal) e o *Desafio Supremo*. Cada nível é liberado quando o anterior é concluído.
-2. **Cenários reais:** cada desafio apresenta uma situação do cotidiano e quatro alternativas plausíveis, sem pistas no enunciado.
-3. **Escolha e verificação:** o jogador escolhe uma alternativa e confirma em **Verificar Resposta**.
-4. **Gaveta constitucional:** depois de responder, sobe uma explicação com o **artigo da CF/88**, o destinatário correto e o porquê.
-5. **3 fichas de credibilidade:** cada erro custa uma vida. Se as três acabarem, o nível recomeça.
-6. **Progressão:** acertos rendem XP, que define o título cívico (de *Eleitor Curioso* a *Constitucionalista Pleno*). Concluir níveis em dias seguidos aumenta a sequência 🔥.
+1. **Trilha de aprendizado:** a tela inicial é uma trilha sinuosa de etapas, acompanhada pelo **Engrenito**, o mascote-engrenagem do app. Cada nível tem um banner: *No Meu Bairro* (Municipal), *Ordem e Região* (Estadual), *Soberania e Leis Nacionais* (Federal) e o *Desafio Supremo*.
+2. **Lições curtas:** cada nível é dividido em lições temáticas de 2 a 3 cenários (por exemplo, "Serviços do bairro" e "De olho no dinheiro"). A próxima etapa fica destacada com o balão **JOGAR**. Ao tocar numa etapa, abre um cartão com os detalhes e o botão para começar.
+3. **Baú de recompensa:** no meio da trilha há um baú que dá **+20 XP** de bônus.
+4. **Desafio final:** reúne todos os cenários do nível. Vencer o desafio conclui o nível e libera o próximo.
+5. **Cenários reais:** cada desafio apresenta uma situação do cotidiano e quatro alternativas plausíveis, sem pistas no enunciado. O jogador escolhe e confirma em **Verificar Resposta**.
+6. **Gaveta constitucional:** depois de responder, sobe uma explicação com o **artigo da CF/88**, o destinatário correto e o porquê.
+7. **3 fichas de credibilidade por lição:** cada erro custa uma vida. Se as três acabarem, a lição recomeça.
+8. **Progressão:** acertos rendem XP, que define o título cívico (de *Eleitor Curioso* a *Constitucionalista Pleno*). A **missão do dia** pede uma lição por dia, e dias seguidos aumentam a sequência 🔥.
 
-> **Conteúdo atual:** o Nível 1 (Municipal) tem 10 cenários. Os níveis Estadual, Federal e Desafio Supremo aparecem na trilha como "Em breve".
+> **Conteúdo atual:** o Nível 1 (Municipal) tem 4 lições e o desafio final, num total de 10 cenários. Os níveis Estadual, Federal e Desafio Supremo aparecem na trilha como "Em breve".
 
 ## Stack
 
@@ -76,9 +78,9 @@ Para testar no celular, use o endereço de rede que o `npm run dev` mostra no te
 ```text
 src/
 ├── app/            # layout, página, manifest do PWA e estilos globais
-├── components/     # EngrenumApp, Dashboard, HudHeader, EngrenumQuiz
-├── data/           # questions.json e definição dos níveis
-├── lib/            # progresso (localStorage) e efeitos sonoros
+├── components/     # trilha (Dashboard, LearningPathUnit, JourneyPanel, Mascot), HUD e quiz
+├── data/           # questions.json, níveis e lições temáticas
+├── lib/            # montagem da trilha, progresso (localStorage) e efeitos sonoros
 └── types/          # contratos TypeScript (Question, Level, GameState…)
 ```
 
@@ -107,6 +109,7 @@ As questões ficam em [`src/data/questions.json`](src/data/questions.json) e seg
 **Regras:**
 - `id` numérico único e **exatamente uma** opção com `isCorrect: true`.
 - `sphere` aceita `municipal`, `state` ou `federal`. A questão entra automaticamente no nível da esfera correspondente, e um nível com questões sai do "Em breve".
+- Níveis com lições temáticas (como o Municipal) precisam que a questão nova seja incluída em uma lição em [`src/data/levels.ts`](src/data/levels.ts). Níveis sem lições temáticas agrupam as questões automaticamente, de 3 em 3.
 - `constitutionalArticle` sempre cita a base na CF/88.
 - O texto é neutro, institucional e não menciona políticos em atividade.
 
@@ -145,6 +148,7 @@ As convenções completas (contratos, arquitetura, design e padrões de engenhar
 
 - [x] Nível 1: Municipal (10 cenários)
 - [x] PWA instalável, progresso local, XP, títulos e sequência diária
+- [x] Trilha de lições com mascote, baú de recompensa e missão do dia
 - [ ] Nível 2: Estadual
 - [ ] Nível 3: Federal
 - [ ] Nível 4: Desafio Supremo (competências concorrentes)

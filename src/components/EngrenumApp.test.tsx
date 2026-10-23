@@ -2,11 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LEVELS } from "@/data/levels";
+import type { Question } from "@/types/quiz";
 
 vi.mock("@/lib/sound", () => ({ playSound: vi.fn() }));
 
 const STORAGE_KEY = "engrenum:progress";
-const municipalQuestions = LEVELS[0].questions;
+const [municipal] = LEVELS;
 
 // The progress store caches localStorage at module level, so each test renders a fresh app.
 async function renderApp() {
@@ -19,10 +20,19 @@ function storedProgress(): Record<string, unknown> {
   return JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "{}") as Record<string, unknown>;
 }
 
-async function answerCurrentQuestionCorrectly(index: number) {
-  const correct = municipalQuestions[index].options.find((o) => o.isCorrect);
-  await userEvent.click(screen.getByRole("button", { name: correct?.text }));
-  await userEvent.click(screen.getByRole("button", { name: "Verificar Resposta" }));
+async function startNode(nodeTitle: string, actionLabel: string) {
+  await userEvent.click(screen.getByRole("button", { name: new RegExp(`^${nodeTitle}:`) }));
+  await userEvent.click(screen.getByRole("button", { name: actionLabel }));
+}
+
+async function answerAllCorrectly(questions: Question[]) {
+  for (const [i, question] of questions.entries()) {
+    const correct = question.options.find((o) => o.isCorrect);
+    await userEvent.click(screen.getByRole("button", { name: correct?.text }));
+    await userEvent.click(screen.getByRole("button", { name: "Verificar Resposta" }));
+    const isLast = i === questions.length - 1;
+    await userEvent.click(screen.getByRole("button", { name: isLast ? "Concluir Nível →" : "Próximo Desafio →" }));
+  }
 }
 
 beforeEach(() => {
@@ -30,55 +40,70 @@ beforeEach(() => {
 });
 
 describe("EngrenumApp", () => {
-  it("starts on the dashboard", async () => {
+  it("starts on the learning path", async () => {
     await renderApp();
-    expect(screen.getByRole("heading", { level: 1, name: "Quem Manda Aqui?" })).toBeVisible();
+    expect(screen.getByRole("region", { name: "No Meu Bairro" })).toBeVisible();
     expect(screen.queryByRole("button", { name: "Voltar ao mapa" })).not.toBeInTheDocument();
   });
 
-  it("opens a level, awards XP for a correct answer and returns to the map", async () => {
+  it("plays a lesson, awards XP and records it on the path", async () => {
     await renderApp();
-    await userEvent.click(screen.getByRole("button", { name: /Nível 1/ }));
-    expect(screen.getByRole("heading", { name: municipalQuestions[0].prompt })).toBeVisible();
+    await startNode("Serviços do bairro", "Começar");
+    expect(screen.getByRole("heading", { name: municipal.lessons[0].questions[0].prompt })).toBeVisible();
 
-    await answerCurrentQuestionCorrectly(0);
-    expect(screen.getByTitle("Pontos de cidadania (XP)")).toHaveTextContent("15");
-    expect(storedProgress()).toMatchObject({ xp: 15 });
+    await answerAllCorrectly(municipal.lessons[0].questions);
+    expect(screen.getByRole("heading", { name: "Lição perfeita!" })).toBeVisible();
+    expect(storedProgress()).toMatchObject({ xp: 45, streak: 1, completedLessonIds: ["municipal-1"] });
 
+    await userEvent.click(screen.getByRole("button", { name: "Voltar à Trilha" }));
+    expect(screen.getByRole("button", { name: "Serviços do bairro: concluída" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Saúde, escola e calçada: próxima etapa" })).toBeVisible();
+  });
+
+  it("leaves a lesson midway and returns to the path", async () => {
+    await renderApp();
+    await startNode("Serviços do bairro", "Começar");
     await userEvent.click(screen.getByRole("button", { name: "Voltar ao mapa" }));
-    expect(screen.getByRole("heading", { level: 1, name: "Quem Manda Aqui?" })).toBeVisible();
-    expect(screen.getByText("Eleitor Curioso")).toBeVisible();
+    expect(screen.getByRole("region", { name: "No Meu Bairro" })).toBeVisible();
   });
 
-  it("persists the sound preference", async () => {
+  it("opens the reward chest for bonus XP", async () => {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ completedLessonIds: ["municipal-1", "municipal-2"] }));
     await renderApp();
-    await userEvent.click(screen.getByRole("button", { name: "Desativar som" }));
-    expect(screen.getByRole("button", { name: "Ativar som" })).toBeVisible();
-    expect(storedProgress()).toMatchObject({ isSoundEnabled: false });
+    await startNode("Baú de recompensa", "Abrir baú");
+
+    expect(screen.getByRole("dialog", { name: "Baú aberto!" })).toHaveTextContent("+20 XP");
+    expect(storedProgress()).toMatchObject({ xp: 20, openedChestIds: ["municipal-chest"] });
+
+    await userEvent.click(screen.getByRole("button", { name: "Oba!" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Baú de recompensa: concluída" })).toBeVisible();
   });
 
-  it("toggles sound from inside a level", async () => {
+  it("completes the level through the final challenge", async () => {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ completedLessonIds: municipal.lessons.map((lesson) => lesson.id) }),
+    );
     await renderApp();
-    await userEvent.click(screen.getByRole("button", { name: /Nível 1/ }));
-    await userEvent.click(screen.getByRole("button", { name: "Desativar som" }));
-    expect(storedProgress()).toMatchObject({ isSoundEnabled: false });
-  });
-
-  it("records a completed level with its streak", async () => {
-    await renderApp();
-    await userEvent.click(screen.getByRole("button", { name: /Nível 1/ }));
-
-    for (let i = 0; i < municipalQuestions.length; i++) {
-      await answerCurrentQuestionCorrectly(i);
-      const isLast = i === municipalQuestions.length - 1;
-      await userEvent.click(screen.getByRole("button", { name: isLast ? "Concluir Nível →" : "Próximo Desafio →" }));
-    }
+    await startNode("Desafio final", "Encarar desafio");
+    await answerAllCorrectly(municipal.questions);
 
     expect(screen.getByRole("heading", { name: "Guardião da Constituição" })).toBeVisible();
-    expect(storedProgress()).toMatchObject({ xp: 150, streak: 1, completedLevelIds: ["municipal"] });
+    expect(storedProgress()).toMatchObject({ xp: 150, completedLevelIds: ["municipal"] });
 
-    await userEvent.click(screen.getByRole("button", { name: "Retornar ao Mapa Federativo" }));
-    expect(screen.getByText("✓ CONCLUÍDO")).toBeVisible();
+    await userEvent.click(screen.getByRole("button", { name: "Voltar à Trilha" }));
+    expect(screen.getByRole("region", { name: "No Meu Bairro" })).toHaveTextContent("✓ CONCLUÍDO");
     expect(screen.getByText("Líder Comunitário")).toBeVisible();
+  });
+
+  it("persists the sound preference from the path and from a lesson", async () => {
+    await renderApp();
+    await userEvent.click(screen.getByRole("button", { name: "Desativar som" }));
+    expect(storedProgress()).toMatchObject({ isSoundEnabled: false });
+
+    await startNode("Serviços do bairro", "Começar");
+    await userEvent.click(screen.getByRole("button", { name: "Ativar som" }));
+    expect(storedProgress()).toMatchObject({ isSoundEnabled: true });
   });
 });

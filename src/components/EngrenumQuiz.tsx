@@ -4,16 +4,16 @@ import { useState } from "react";
 import HudHeader from "@/components/HudHeader";
 import { INITIAL_LIVES, SPHERE_LABELS, XP_PER_CORRECT_ANSWER, getCivicTitle } from "@/data/levels";
 import { playSound } from "@/lib/sound";
-import type { GameState, Level } from "@/types/quiz";
+import type { GameState, QuizSession } from "@/types/quiz";
 
 interface EngrenumQuizProps {
-  level: Level;
+  session: QuizSession;
   xp: number;
   streak: number;
   isSoundEnabled: boolean;
   onToggleSound: () => void;
   onCorrectAnswer: () => void;
-  onLevelComplete: () => void;
+  onComplete: () => void;
   onExit: () => void;
 }
 
@@ -27,20 +27,20 @@ const INITIAL_GAME_STATE: GameState = {
 };
 
 export default function EngrenumQuiz({
-  level,
+  session,
   xp,
   streak,
   isSoundEnabled,
   onToggleSound,
   onCorrectAnswer,
-  onLevelComplete,
+  onComplete,
   onExit,
 }: EngrenumQuizProps) {
   const [game, setGame] = useState<GameState>(INITIAL_GAME_STATE);
 
   const { currentIndex, lives, score, selectedOptionId, isSelectionLocked, isGameOver } = game;
-  const totalQuestions = level.questions.length;
-  const currentQuestion = level.questions[currentIndex];
+  const totalQuestions = session.questions.length;
+  const currentQuestion = session.questions[currentIndex];
   const selectedOption = currentQuestion.options.find((o) => o.id === selectedOptionId);
   const correctOption = currentQuestion.options.find((o) => o.isCorrect);
   const isAnswerCorrect = isSelectionLocked && (selectedOption?.isCorrect ?? false);
@@ -74,7 +74,7 @@ export default function EngrenumQuiz({
     if (isLastQuestion) {
       playSound("correct", isSoundEnabled);
       setGame((g) => ({ ...g, isGameOver: true }));
-      onLevelComplete();
+      onComplete();
       return;
     }
     playSound("tap", isSoundEnabled);
@@ -92,8 +92,11 @@ export default function EngrenumQuiz({
   }
 
   if (hasWon) {
-    const civicTitle = getCivicTitle(score, totalQuestions);
     const accuracy = Math.round((score / totalQuestions) * 100);
+    const isChallenge = session.kind === "challenge";
+    const civicTitle = getCivicTitle(score, totalQuestions);
+    const heading = isChallenge ? civicTitle.name : accuracy === 100 ? "Lição perfeita!" : "Lição concluída!";
+    const description = isChallenge ? civicTitle.description : `Você completou "${session.title}". Siga para a próxima etapa da trilha!`;
     return (
       <>
         <HudHeader
@@ -111,10 +114,10 @@ export default function EngrenumQuiz({
             ⚖️
           </div>
           <span className="mb-2 rounded-full bg-rep-navy px-3 py-1 font-brand text-xs font-bold uppercase tracking-widest text-rep-gold">
-            Nível Concluído
+            {isChallenge ? "Nível Concluído" : "Lição Concluída"}
           </span>
-          <h2 className="font-brand text-2xl font-bold tracking-tight text-rep-navy sm:text-3xl">{civicTitle.name}</h2>
-          <p className="mt-1 max-w-sm text-sm font-medium text-rep-muted">{civicTitle.description}</p>
+          <h2 className="font-brand text-2xl font-bold tracking-tight text-rep-navy sm:text-3xl">{heading}</h2>
+          <p className="mt-1 max-w-sm text-sm font-medium text-rep-muted">{description}</p>
 
           <dl className="my-6 grid w-full max-w-sm grid-cols-2 gap-3">
             <div className="rounded-xl border-2 border-rep-navy bg-white p-4 text-left shadow-sm">
@@ -138,7 +141,7 @@ export default function EngrenumQuiz({
               onClick={onExit}
               className="civic-btn w-full rounded-xl border-2 border-rep-navy bg-rep-navy py-4 font-brand text-sm font-bold uppercase tracking-wider text-white shadow-neo hover:bg-rep-navy-light"
             >
-              Retornar ao Mapa Federativo
+              Voltar à Trilha
             </button>
             <button
               type="button"

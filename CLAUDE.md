@@ -44,14 +44,18 @@ engrenum/
 │   │   ├── manifest.ts          # PWA manifest (served at /manifest.webmanifest)
 │   │   └── page.tsx             # renders <EngrenumApp />
 │   ├── components/
-│   │   ├── EngrenumApp.tsx      # client root: switches dashboard ↔ quiz, wires progress
-│   │   ├── Dashboard.tsx        # hero banner + "Trilha Federativa" level trail
+│   │   ├── EngrenumApp.tsx      # client root: path ↔ quiz, chest reward dialog, wires progress
+│   │   ├── Dashboard.tsx        # home: journey panel + one LearningPathUnit per level
+│   │   ├── LearningPathUnit.tsx # level banner, winding path of nodes, node popover, mascot
+│   │   ├── JourneyPanel.tsx     # civic rank progress + daily mission cards
+│   │   ├── Mascot.tsx           # "Engrenito" SVG mascot (happy / sleepy)
 │   │   ├── HudHeader.tsx        # sticky HUD: back, progress bar, sound, streak, XP, lives
-│   │   └── EngrenumQuiz.tsx     # game engine for one level
+│   │   └── EngrenumQuiz.tsx     # game engine for one QuizSession (lesson or challenge)
 │   ├── data/
-│   │   ├── levels.ts            # LEVELS, game constants, rank/civic-title helpers
+│   │   ├── levels.ts            # LEVELS + themed lessons, constants, rank/civic-title helpers
 │   │   └── questions.json
 │   ├── lib/
+│   │   ├── path.ts              # buildPath(): levels + progress → path units/nodes with status
 │   │   ├── progress.ts          # localStorage-backed progress store
 │   │   └── sound.ts             # Web Audio API sound effects
 │   └── types/
@@ -93,13 +97,61 @@ export interface Question {
   explanation: string;
 }
 
+export interface Lesson {
+  id: string;
+  title: string;
+  questions: Question[];
+}
+
 export interface Level {
   id: string;
-  sphereLabel: string; // pt-BR label shown in the UI
+  sphereLabel: string;
   title: string;
   subtitle: string;
   icon: string;
+  /** Short pt-BR line the mascot says next to this level's path. */
+  mascotTip: string;
+  lessons: Lesson[];
+  /** Every question of the level; played together in the final challenge. */
   questions: Question[];
+}
+
+export type QuizSessionKind = "lesson" | "challenge";
+
+/** One playable run of the quiz engine: a lesson or a level's final challenge. */
+export interface QuizSession {
+  id: string;
+  kind: QuizSessionKind;
+  levelId: string;
+  title: string;
+  questions: Question[];
+}
+
+export type PathNodeKind = "lesson" | "chest" | "challenge";
+
+/**
+ * completed: done (lessons and challenges stay replayable);
+ * current: the next step to play;
+ * available: unlocked side reward (an unopened chest);
+ * locked: previous steps are still pending.
+ */
+export type PathNodeStatus = "completed" | "current" | "available" | "locked";
+
+export interface PathNode {
+  id: string;
+  kind: PathNodeKind;
+  title: string;
+  status: PathNodeStatus;
+  /** Present for lessons and challenges. */
+  session?: QuizSession;
+}
+
+export interface PathUnit {
+  level: Level;
+  isComingSoon: boolean;
+  isUnlocked: boolean;
+  isCompleted: boolean;
+  nodes: PathNode[];
 }
 
 export interface GameState {
@@ -116,6 +168,18 @@ export interface GameState {
 export interface CivicTitle {
   name: string;
   description: string;
+}
+
+export interface Rank {
+  name: string;
+  minXp: number;
+}
+
+export interface RankProgress {
+  name: string;
+  nextName: string | null;
+  xpToNext: number;
+  percent: number;
 }
 ```
 
@@ -144,6 +208,7 @@ An array of `Question` objects. Level 1 (Municipal) currently has 10 scenarios; 
 Rules for new questions:
 - Unique numeric `id`; exactly one option with `isCorrect: true`.
 - `sphere` uses the English keys (`municipal` | `state` | `federal`); levels pick up questions by sphere automatically (`src/data/levels.ts`).
+- Levels with themed lessons (e.g. Municipal) must list every new question id in one of their `lessons` (`pickQuestions([...])`); a test fails otherwise. Levels without themed lessons use `chunkIntoLessons`.
 - Every question cites its CF/88 basis in `constitutionalArticle`.
 
 Difficulty rules (the answer must never be obvious):
@@ -157,25 +222,35 @@ Difficulty rules (the answer must never be obvious):
 
 ## 6. Game Design & Architecture
 
-### Screens
-1. **Dashboard** (`Dashboard.tsx`): hero banner "Quem Manda Aqui?" with the player's current rank (by XP), followed by the **Trilha Federativa** — 4 level cards (Municipal, Estadual, Federal, Desafio Supremo).
-   - A level is playable when it has questions **and** the previous level is completed.
-   - The first playable, not-yet-completed level is highlighted as "EM FOCO" (gold border + pulse).
-   - Levels without questions show "EM BREVE" and are locked.
-2. **Quiz** (`EngrenumQuiz.tsx`), one level at a time, state held in a single `GameState`:
-   - Select an option → press **"Verificar Resposta"** → options lock (`isSelectionLocked`) and the **feedback drawer** slides up from the bottom with the result, the CF/88 article, the correct answer (when wrong), and the explanation.
-   - Correct: +1 score, +15 XP (`XP_PER_CORRECT_ANSWER`). Wrong: −1 life and a shake animation.
-   - **3 lives per level** (`INITIAL_LIVES`). At 0 lives → "Credibilidade Esgotada!" modal (retry or back to map).
-3. **Victory** (inside `EngrenumQuiz.tsx`): "Nível Concluído", civic title by accuracy (`getCivicTitle`), XP earned and accuracy rate; the level is marked as completed and the daily streak is updated.
+### Home: the learning path (`Dashboard.tsx`)
+Inspired by language-learning apps (a winding path of steps, a mascot, rewards), but drawn in Engrenum's own navy/gold neo-brutalist identity — never copy another product's layout or art.
+- **Journey panel** (`JourneyPanel.tsx`): civic rank with a progress bar to the next rank (`getRankProgress`) and the **daily mission** ("Complete 1 lição hoje", done when `lastPlayedDay` is today). Two cards side by side on mobile, sticky right column on desktop (`lg`).
+- **One unit per level** (`LearningPathUnit.tsx`): a banner ("Nível N · Sphere", title, subtitle, `done/total ETAPAS`, "✓ CONCLUÍDO" or "EM BREVE"), then a **winding path** of round nodes, plus **Engrenito** (`Mascot.tsx`) beside it with the level's `mascotTip`. The mascot alternates sides per unit and the path winds away from it.
+- **Path order per level** (`buildPath` in `src/lib/path.ts`): lessons in order → a **reward chest** after the 2nd lesson → the **Desafio final** (all questions of the level).
+  - Lessons and the challenge are sequential: each unlocks when the previous one is completed. The first not-done step is `current` (navy node, pulse ring and a bobbing "JOGAR" callout).
+  - The chest is a side reward: `available` once the lesson before it is done, it never blocks the next lesson, and opening it grants `CHEST_XP` (+20) once.
+  - Completing the **Desafio final** completes the level (`completedLevelIds`), counts all its lessons as done, and unlocks the next level.
+  - Levels without questions are "EM BREVE": dashed ghost nodes and a sleepy, gray mascot.
+- **Node popover:** tapping a node toggles a card below it with title, details ("Lição 2 de 4 · 3 cenários") and the action ("Começar", "Jogar de novo", "Encarar desafio", "Refazer desafio", "Abrir baú"); locked nodes explain how to unlock.
+- **Lessons** are hand-picked, themed groups of 2–3 questions defined in `src/data/levels.ts` (e.g. "Serviços do bairro"). Levels without themed lessons fall back to `chunkIntoLessons` (3 per lesson).
+
+### Quiz (`EngrenumQuiz.tsx`)
+Plays one `QuizSession` (a lesson or a challenge); state lives in a single `GameState`.
+- Select an option → press **"Verificar Resposta"** → options lock (`isSelectionLocked`) and the **feedback drawer** slides up with the result, the CF/88 article, the correct answer (when wrong), and the explanation.
+- Correct: +1 score, +15 XP (`XP_PER_CORRECT_ANSWER`). Wrong: −1 life and a shake animation.
+- **3 lives per session** (`INITIAL_LIVES`). At 0 lives → "Credibilidade Esgotada!" dialog (retry or back to the path).
+- **Victory:** lessons show "Lição Concluída" ("Lição perfeita!" at 100%); challenges show "Nível Concluído" with the civic title by accuracy (`getCivicTitle`). Both show XP earned and accuracy, then register the session (`registerSessionCompletion`) and update the streak.
 
 ### Progression
-- **Rank by XP** (`getRankByXp`): Eleitor Curioso → Fiscal Cívico Júnior (60) → Líder Comunitário (150) → Constitucionalista Pleno (300).
-- **Civic title by level accuracy** (`getCivicTitle`): Guardião da Constituição (100%), Fiscal do Povo (≥70%), Cidadão Atento (≥40%), Aprendiz Cívico.
-- **Streak:** consecutive local calendar days with at least one completed level.
+- **Rank by XP** (`RANKS`, `getRankProgress`): Eleitor Curioso (0) → Fiscal Cívico Júnior (60) → Líder Comunitário (150) → Constitucionalista Pleno (300).
+- **Civic title by challenge accuracy** (`getCivicTitle`): Guardião da Constituição (100%), Fiscal do Povo (≥70%), Cidadão Atento (≥40%), Aprendiz Cívico.
+- **Streak:** consecutive local calendar days with at least one completed lesson or challenge.
+- **Stored progress** (`Progress`): `xp`, `streak`, `lastPlayedDay`, `completedLessonIds`, `completedLevelIds`, `openedChestIds`, `isSoundEnabled`.
 
 ### Rendering & State
 - `page.tsx` is a Server Component that renders the client root `EngrenumApp`.
 - `useProgress()` returns `INITIAL_PROGRESS` on the server and during hydration, then the stored value — no hydration mismatch.
+- **Cache Components is enabled** (`next.config.ts`): never read the clock or randomness (`new Date()`, `Date.now()`, `Math.random()`) while prerendering. Client helpers that need "today" must bail out before reading the clock when the result can't depend on it (see `hasPlayedToday`), or run in event handlers.
 - Sound effects are synthesized on demand (no audio assets) and respect `isSoundEnabled`.
 
 ---

@@ -1,10 +1,13 @@
 import { useSyncExternalStore } from "react";
+import type { QuizSession } from "@/types/quiz";
 
 export interface Progress {
   xp: number;
   streak: number;
   lastPlayedDay: string | null;
+  completedLessonIds: string[];
   completedLevelIds: string[];
+  openedChestIds: string[];
   isSoundEnabled: boolean;
 }
 
@@ -12,7 +15,9 @@ export const INITIAL_PROGRESS: Progress = {
   xp: 0,
   streak: 0,
   lastPlayedDay: null,
+  completedLessonIds: [],
   completedLevelIds: [],
+  openedChestIds: [],
   isSoundEnabled: true,
 };
 
@@ -83,7 +88,18 @@ function toLocalDay(date: Date): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-export function registerLevelCompletion(current: Progress, levelId: string): Progress {
+function addUnique(ids: string[], id: string): string[] {
+  return ids.includes(id) ? ids : [...ids, id];
+}
+
+export function hasPlayedToday(progress: Progress, now?: Date): boolean {
+  // Bail out before reading the clock: the server prerender always sees INITIAL_PROGRESS,
+  // and Cache Components forbids `new Date()` while prerendering.
+  if (!progress.lastPlayedDay) return false;
+  return progress.lastPlayedDay === toLocalDay(now ?? new Date());
+}
+
+export function registerSessionCompletion(current: Progress, session: QuizSession): Progress {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
@@ -96,8 +112,14 @@ export function registerLevelCompletion(current: Progress, levelId: string): Pro
     ...current,
     streak,
     lastPlayedDay: toLocalDay(today),
-    completedLevelIds: current.completedLevelIds.includes(levelId)
-      ? current.completedLevelIds
-      : [...current.completedLevelIds, levelId],
+    completedLessonIds:
+      session.kind === "lesson" ? addUnique(current.completedLessonIds, session.id) : current.completedLessonIds,
+    completedLevelIds:
+      session.kind === "challenge" ? addUnique(current.completedLevelIds, session.levelId) : current.completedLevelIds,
   };
+}
+
+export function registerChestOpening(current: Progress, chestId: string, xpReward: number): Progress {
+  if (current.openedChestIds.includes(chestId)) return current;
+  return { ...current, xp: current.xp + xpReward, openedChestIds: [...current.openedChestIds, chestId] };
 }

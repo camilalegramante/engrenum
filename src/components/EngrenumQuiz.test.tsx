@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { playSound } from "@/lib/sound";
-import type { Level, Question } from "@/types/quiz";
+import type { Question, QuizSession, QuizSessionKind } from "@/types/quiz";
 import EngrenumQuiz from "./EngrenumQuiz";
 
 vi.mock("@/lib/sound", () => ({ playSound: vi.fn() }));
@@ -21,26 +21,25 @@ function makeQuestion(id: number): Question {
   };
 }
 
-function makeLevel(questionCount: number): Level {
+function makeSession(questionCount: number, kind: QuizSessionKind): QuizSession {
   return {
-    id: "municipal",
-    sphereLabel: "Municipal",
-    title: "Nível 1: Teste",
-    subtitle: "Subtítulo",
-    icon: "🏘️",
+    id: kind === "lesson" ? "municipal-1" : "municipal-challenge",
+    kind,
+    levelId: "municipal",
+    title: "Serviços do bairro",
     questions: Array.from({ length: questionCount }, (_, i) => makeQuestion(i + 1)),
   };
 }
 
-function renderQuiz(questionCount: number) {
+function renderQuiz(questionCount: number, kind: QuizSessionKind = "challenge") {
   const props = {
-    level: makeLevel(questionCount),
+    session: makeSession(questionCount, kind),
     xp: 0,
     streak: 0,
     isSoundEnabled: true,
     onToggleSound: vi.fn(),
     onCorrectAnswer: vi.fn(),
-    onLevelComplete: vi.fn(),
+    onComplete: vi.fn(),
     onExit: vi.fn(),
   };
   render(<EngrenumQuiz {...props} />);
@@ -117,11 +116,30 @@ describe("EngrenumQuiz", () => {
     await answer("Errada 2");
     await userEvent.click(screen.getByRole("button", { name: "Concluir Nível →" }));
 
-    expect(props.onLevelComplete).toHaveBeenCalledOnce();
+    expect(props.onComplete).toHaveBeenCalledOnce();
     expect(screen.getByText("Nível Concluído")).toBeVisible();
     expect(screen.getByRole("heading", { name: "Cidadão Atento" })).toBeVisible();
     expect(screen.getByText("Pontos Obtidos").nextElementSibling).toHaveTextContent("+15 XP");
     expect(screen.getByText("Taxa de Acerto").nextElementSibling).toHaveTextContent("50%");
+  });
+
+  it("celebrates a completed lesson", async () => {
+    renderQuiz(2, "lesson");
+    await answer("Certa 1");
+    await userEvent.click(screen.getByRole("button", { name: "Próximo Desafio →" }));
+    await answer("Errada 2");
+    await userEvent.click(screen.getByRole("button", { name: "Concluir Nível →" }));
+
+    expect(screen.getByText("Lição Concluída")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Lição concluída!" })).toBeVisible();
+    expect(screen.getByText(/Você completou "Serviços do bairro"/)).toBeVisible();
+  });
+
+  it("calls a flawless lesson perfect", async () => {
+    renderQuiz(1, "lesson");
+    await answer("Certa 1");
+    await userEvent.click(screen.getByRole("button", { name: "Concluir Nível →" }));
+    expect(screen.getByRole("heading", { name: "Lição perfeita!" })).toBeVisible();
   });
 
   it("restarts or exits from the victory screen", async () => {
@@ -129,7 +147,7 @@ describe("EngrenumQuiz", () => {
     await answer("Certa 1");
     await userEvent.click(screen.getByRole("button", { name: "Concluir Nível →" }));
 
-    await userEvent.click(screen.getByRole("button", { name: "Retornar ao Mapa Federativo" }));
+    await userEvent.click(screen.getByRole("button", { name: "Voltar à Trilha" }));
     expect(props.onExit).toHaveBeenCalledOnce();
 
     await userEvent.click(screen.getByRole("button", { name: "Jogar Novamente" }));

@@ -6,6 +6,8 @@ interface HudHeaderProps {
   lives?: number;
   progressPercent?: number;
   onBack?: () => void;
+  /** Matches the wider two-column dashboard layout. */
+  isWide?: boolean;
 }
 
 export default function HudHeader({
@@ -16,12 +18,15 @@ export default function HudHeader({
   lives,
   progressPercent,
   onBack,
+  isWide = false,
 }: HudHeaderProps) {
   const isInLesson = progressPercent !== undefined;
 
   return (
     <header className="sticky top-0 z-30 w-full border-b-2 border-rep-navy bg-white px-4 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] shadow-sm">
-      <div className="mx-auto flex max-w-xl items-center justify-between gap-2 sm:gap-3">
+      <div
+        className={`mx-auto flex items-center justify-between gap-2 sm:gap-3 ${isWide ? "max-w-5xl" : "max-w-xl"}`}
+      >
         <div className="flex items-center gap-1">
           {onBack ? (
             <button

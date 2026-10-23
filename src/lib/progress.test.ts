@@ -2,6 +2,7 @@ import { act, renderHook } from "@testing-library/react";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { QuizSession } from "@/types/quiz";
 import type { Progress } from "./progress";
 
 const STORAGE_KEY = "engrenum:progress";
@@ -109,13 +110,23 @@ describe("updateProgress", () => {
   });
 });
 
-describe("registerLevelCompletion", () => {
+describe("registerSessionCompletion", () => {
   const base: Progress = {
     xp: 0,
     streak: 0,
     lastPlayedDay: null,
+    completedLessonIds: [],
     completedLevelIds: [],
+    openedChestIds: [],
     isSoundEnabled: true,
+  };
+  const lesson: QuizSession = { id: "municipal-1", kind: "lesson", levelId: "municipal", title: "Lição", questions: [] };
+  const challenge: QuizSession = {
+    id: "municipal-challenge",
+    kind: "challenge",
+    levelId: "municipal",
+    title: "Desafio",
+    questions: [],
   };
 
   beforeEach(() => {
@@ -123,36 +134,63 @@ describe("registerLevelCompletion", () => {
     vi.setSystemTime(new Date(2026, 9, 23, 15, 0)); // 23 Oct 2026, local time
   });
 
-  it("starts a streak and records the level on the first completion", async () => {
-    const { registerLevelCompletion } = await loadModule();
-    expect(registerLevelCompletion(base, "municipal")).toMatchObject({
+  it("records a lesson and starts a streak on the first completion", async () => {
+    const { registerSessionCompletion } = await loadModule();
+    expect(registerSessionCompletion(base, lesson)).toMatchObject({
       streak: 1,
       lastPlayedDay: "2026-10-23",
+      completedLessonIds: ["municipal-1"],
+      completedLevelIds: [],
+    });
+  });
+
+  it("records the level when its final challenge is completed", async () => {
+    const { registerSessionCompletion } = await loadModule();
+    expect(registerSessionCompletion(base, challenge)).toMatchObject({
+      completedLessonIds: [],
       completedLevelIds: ["municipal"],
     });
   });
 
   it("keeps the streak when playing again on the same day", async () => {
-    const { registerLevelCompletion } = await loadModule();
+    const { registerSessionCompletion } = await loadModule();
     const progress = { ...base, streak: 4, lastPlayedDay: "2026-10-23" };
-    expect(registerLevelCompletion(progress, "municipal").streak).toBe(4);
+    expect(registerSessionCompletion(progress, lesson).streak).toBe(4);
   });
 
   it("extends the streak when the last play was yesterday", async () => {
-    const { registerLevelCompletion } = await loadModule();
+    const { registerSessionCompletion } = await loadModule();
     const progress = { ...base, streak: 4, lastPlayedDay: "2026-10-22" };
-    expect(registerLevelCompletion(progress, "municipal").streak).toBe(5);
+    expect(registerSessionCompletion(progress, lesson).streak).toBe(5);
   });
 
   it("resets the streak after a missed day", async () => {
-    const { registerLevelCompletion } = await loadModule();
+    const { registerSessionCompletion } = await loadModule();
     const progress = { ...base, streak: 4, lastPlayedDay: "2026-10-20" };
-    expect(registerLevelCompletion(progress, "municipal").streak).toBe(1);
+    expect(registerSessionCompletion(progress, lesson).streak).toBe(1);
   });
 
-  it("does not duplicate an already completed level", async () => {
-    const { registerLevelCompletion } = await loadModule();
-    const progress = { ...base, completedLevelIds: ["municipal"] };
-    expect(registerLevelCompletion(progress, "municipal").completedLevelIds).toEqual(["municipal"]);
+  it("does not duplicate already completed lessons or levels", async () => {
+    const { registerSessionCompletion } = await loadModule();
+    const progress = { ...base, completedLessonIds: ["municipal-1"], completedLevelIds: ["municipal"] };
+    expect(registerSessionCompletion(progress, lesson).completedLessonIds).toEqual(["municipal-1"]);
+    expect(registerSessionCompletion(progress, challenge).completedLevelIds).toEqual(["municipal"]);
+  });
+
+  it("tells whether the player already played today", async () => {
+    const { hasPlayedToday } = await loadModule();
+    expect(hasPlayedToday(base)).toBe(false);
+    expect(hasPlayedToday({ ...base, lastPlayedDay: "2026-10-23" })).toBe(true);
+    expect(hasPlayedToday({ ...base, lastPlayedDay: "2026-10-22" })).toBe(false);
+    expect(hasPlayedToday({ ...base, lastPlayedDay: "2026-10-22" }, new Date(2026, 9, 22))).toBe(true);
+  });
+});
+
+describe("registerChestOpening", () => {
+  it("awards the bonus XP once per chest", async () => {
+    const { registerChestOpening, INITIAL_PROGRESS } = await loadModule();
+    const opened = registerChestOpening(INITIAL_PROGRESS, "municipal-chest", 20);
+    expect(opened).toMatchObject({ xp: 20, openedChestIds: ["municipal-chest"] });
+    expect(registerChestOpening(opened, "municipal-chest", 20)).toBe(opened);
   });
 });

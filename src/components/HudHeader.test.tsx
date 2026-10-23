@@ -51,6 +51,13 @@ describe("HudHeader", () => {
     expect(screen.getByRole("button", { name: "Ativar som" })).toHaveAttribute("aria-pressed", "false");
   });
 
+  it("widens to match the dashboard layout when asked", () => {
+    const { container, rerender } = render(<HudHeader xp={0} streak={0} isSoundEnabled onToggleSound={vi.fn()} />);
+    expect(container.querySelector("header > div")).toHaveClass("max-w-xl");
+    rerender(<HudHeader xp={0} streak={0} isSoundEnabled onToggleSound={vi.fn()} isWide />);
+    expect(container.querySelector("header > div")).toHaveClass("max-w-5xl");
+  });
+
   it("keeps icon buttons at least 44px", () => {
     render(<HudHeader xp={0} streak={0} isSoundEnabled onToggleSound={vi.fn()} onBack={vi.fn()} />);
     for (const button of screen.getAllByRole("button")) {
