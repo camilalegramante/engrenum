@@ -22,6 +22,35 @@ describe("question dataset", () => {
   });
 });
 
+// Guards against questions that give the answer away (see CLAUDE.md, section 5).
+describe("question difficulty", () => {
+  const correctOptionOf = (q: (typeof allQuestions)[number]) => q.options.find((o) => o.isCorrect)!;
+
+  it.each(allQuestions)("question $id offers four alternatives", (question) => {
+    expect(question.options).toHaveLength(4);
+  });
+
+  it.each(allQuestions)("question $id does not repeat the correct answer in the prompt", (question) => {
+    expect(question.prompt.toLowerCase()).not.toContain(correctOptionOf(question).text.toLowerCase());
+  });
+
+  it("varies the position of the correct answer", () => {
+    const positions = allQuestions.map((q) => q.options.indexOf(correctOptionOf(q)));
+    const maxPerPosition = Math.ceil(allQuestions.length / 2);
+    for (let position = 0; position < 4; position++) {
+      expect(positions.filter((p) => p === position).length).toBeLessThanOrEqual(maxPerPosition);
+    }
+  });
+
+  it("does not make the correct answer systematically the longest", () => {
+    const longestIsCorrect = allQuestions.filter((q) => {
+      const correct = correctOptionOf(q);
+      return q.options.every((o) => o === correct || o.text.length < correct.text.length);
+    });
+    expect(longestIsCorrect.length).toBeLessThanOrEqual(Math.floor(allQuestions.length / 3));
+  });
+});
+
 describe("LEVELS", () => {
   it("has unique level ids", () => {
     const ids = LEVELS.map((level) => level.id);

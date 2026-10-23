@@ -2,121 +2,131 @@
   {
     "id": 1,
     "sphere": "municipal",
-    "prompt": "A rua da sua casa está cheia de buracos, danificando veículos e colocando pedestres em risco. Quem tem a obrigação de mandar a equipe de obras e recapear o asfalto?",
+    "prompt": "A rua do seu bairro está cheia de buracos, danificando carros e colocando pedestres em risco. Quem tem o dever de mandar uma equipe tapar esses buracos?",
     "options": [
-      { "id": "a", "text": "Prefeito / Secretaria de Obras", "isCorrect": true },
-      { "id": "b", "text": "Vereador do bairro", "isCorrect": false },
-      { "id": "c", "text": "Governador do Estado", "isCorrect": false }
+      { "id": "a", "text": "O vereador mais votado do bairro", "isCorrect": false },
+      { "id": "b", "text": "Prefeito", "isCorrect": true },
+      { "id": "c", "text": "Governador", "isCorrect": false },
+      { "id": "d", "text": "Câmara de Vereadores", "isCorrect": false }
     ],
     "constitutionalArticle": "Art. 30, V da CF/88",
-    "explanation": "A manutenção de vias públicas urbanas é serviço de interesse local, responsabilidade direta da Prefeitura. O vereador pode solicitar ou cobrar, mas não administra máquinas de asfalto nem o orçamento das obras."
+    "explanation": "A conservação de ruas e o tapa-buraco são serviços de interesse local, executados pela Prefeitura. Vereadores, sozinhos ou reunidos na Câmara, podem cobrar e fiscalizar, mas não comandam equipes nem contratam obras. O Governador cuida das rodovias estaduais, não das ruas da cidade."
   },
   {
     "id": 2,
     "sphere": "municipal",
-    "prompt": "Você foi à Unidade Básica de Saúde (Postinho) do seu bairro e faltou dipirona e curativos básicos. A gestão do posto e a compra desses insumos cabem a quem?",
+    "prompt": "No posto de saúde do seu bairro, faltaram dipirona e material para curativo. Quem é responsável por comprar e manter o estoque desses itens?",
     "options": [
-      { "id": "a", "text": "Presidente da República", "isCorrect": false },
-      { "id": "b", "text": "Prefeito / Secretaria de Saúde", "isCorrect": true },
-      { "id": "c", "text": "Deputado Estadual", "isCorrect": false }
+      { "id": "a", "text": "Ministério da Saúde", "isCorrect": false },
+      { "id": "b", "text": "Secretaria Estadual de Saúde", "isCorrect": false },
+      { "id": "c", "text": "Prefeitura", "isCorrect": true },
+      { "id": "d", "text": "Câmara de Vereadores", "isCorrect": false }
     ],
-    "constitutionalArticle": "Art. 30, VII da CF/88 e Lei do SUS",
-    "explanation": "A gestão da atenção básica (postos de saúde e remédios essenciais do cotidiano) é competência do município. O governo federal repassa recursos, mas quem estoca e administra o postinho é a Prefeitura."
+    "constitutionalArticle": "Art. 30, VII da CF/88 e Lei 8.080/90 (Lei do SUS)",
+    "explanation": "As três esferas de governo financiam o SUS, mas a gestão da atenção básica (postos de saúde e remédios do dia a dia) é do município. O Ministério e a Secretaria Estadual repassam recursos; quem compra, estoca e distribui é a Prefeitura."
   },
   {
     "id": 3,
     "sphere": "municipal",
-    "prompt": "Em época de campanha, um candidato a vereador promete: 'Se eu for eleito, vou construir uma nova creche municipal no nosso bairro!'. Essa promessa é legalmente viável para o cargo dele?",
+    "prompt": "Um candidato a vereador promete: 'Se eu for eleito, vou construir uma creche nova no nosso bairro!'. Se ele for eleito, o que poderá fazer de fato?",
     "options": [
-      { "id": "a", "text": "Sim, vereadores têm poder de ordenar obras na cidade.", "isCorrect": false },
-      { "id": "b", "text": "Não, ordenar obras e gerir o orçamento é exclusividade da Prefeitura.", "isCorrect": true },
-      { "id": "c", "text": "Sim, desde que o Governador assine junto.", "isCorrect": false }
+      { "id": "a", "text": "Construir a creche com a verba do próprio gabinete", "isCorrect": false },
+      { "id": "b", "text": "Aprovar uma lei obrigando a prefeitura a construir a creche", "isCorrect": false },
+      { "id": "c", "text": "Nada, porque creches são assunto do Governo Federal", "isCorrect": false },
+      { "id": "d", "text": "Indicar e cobrar a obra, que é executada pela prefeitura", "isCorrect": true }
     ],
     "constitutionalArticle": "Art. 61, § 1º, II c/c Art. 29 da CF/88",
-    "explanation": "Falso! Projetos que criam novas despesas públicas e organizam a administração são de iniciativa privativa do Prefeito. O candidato a vereador está prometendo uma ação executiva que a lei o proíbe de realizar."
+    "explanation": "Vereadores legislam, fiscalizam, votam o orçamento e podem indicar obras à prefeitura. Mas executar uma obra (licitar, contratar e construir) é função do Executivo. Uma lei de vereador que obrigue a prefeitura a criar despesas e organizar serviços invade a iniciativa reservada ao prefeito."
   },
   {
     "id": 4,
     "sphere": "municipal",
-    "prompt": "A creche da rede municipal está com atraso crônico na entrega de alimentos e servindo merenda de baixa qualidade. Quem contrata as empresas fornecedoras e administra a compra?",
+    "prompt": "Na creche pública onde seu filho estuda, a merenda vive atrasada e chega com baixa qualidade. Quem contrata as empresas que fornecem essa merenda?",
     "options": [
-      { "id": "a", "text": "Secretaria Municipal de Educação (Prefeitura)", "isCorrect": true },
-      { "id": "b", "text": "Ministério da Educação (Governo Federal)", "isCorrect": false },
-      { "id": "c", "text": "Juiz da Vara da Infância", "isCorrect": false }
+      { "id": "a", "text": "Prefeitura, por meio da Secretaria de Educação", "isCorrect": true },
+      { "id": "b", "text": "Ministério da Educação, que envia a verba da merenda", "isCorrect": false },
+      { "id": "c", "text": "Secretaria Estadual de Educação", "isCorrect": false },
+      { "id": "d", "text": "Câmara de Vereadores", "isCorrect": false }
     ],
-    "constitutionalArticle": "Art. 211, § 2º da CF/88",
-    "explanation": "Os municípios atuam prioritariamente na Educação Infantil e no Ensino Fundamental. Licitações, contratação de fornecedores e controle das cozinhas escolares são atribuições do Poder Executivo municipal."
+    "constitutionalArticle": "Art. 211, § 2º e Art. 208, VII da CF/88",
+    "explanation": "A educação infantil (creches e pré-escolas) é prioridade dos municípios. O Governo Federal complementa a verba da merenda pelo PNAE, mas quem faz a licitação, contrata os fornecedores e fiscaliza as entregas é a Prefeitura, por meio da Secretaria de Educação."
   },
   {
     "id": 5,
     "sphere": "municipal",
-    "prompt": "A prefeitura gastou milhões reformando uma praça central, mas o piso rachou em semanas e há suspeita de superfaturamento. Qual órgão tem o dever oficial de fiscalizar esse contrato?",
+    "prompt": "A prefeitura gastou milhões reformando a praça central, o piso rachou em semanas e há suspeita de superfaturamento. Pela Constituição, quem tem o papel de fiscalizar as contas da prefeitura?",
     "options": [
-      { "id": "a", "text": "Câmara Municipal (Vereadores)", "isCorrect": true },
-      { "id": "b", "text": "Polícia Militar", "isCorrect": false },
-      { "id": "c", "text": "Senado Federal", "isCorrect": false }
+      { "id": "a", "text": "Secretaria Municipal de Obras", "isCorrect": false },
+      { "id": "b", "text": "Assembleia Legislativa", "isCorrect": false },
+      { "id": "c", "text": "Câmara de Vereadores", "isCorrect": true },
+      { "id": "d", "text": "Polícia Civil", "isCorrect": false }
     ],
     "constitutionalArticle": "Art. 31 da CF/88",
-    "explanation": "A principal missão do vereador, além de propor leis, é a fiscalização contábil, financeira e operacional da Prefeitura (com apoio do Tribunal de Contas). Contratos suspeitos na cidade devem ser cobrados na Câmara."
+    "explanation": "O controle externo das contas da prefeitura é feito pela Câmara de Vereadores, com o apoio técnico do Tribunal de Contas. A Secretaria de Obras é justamente quem está sendo fiscalizada, e a Assembleia Legislativa cuida das contas do Governo do Estado. Indícios de crime também podem ser levados ao Ministério Público."
   },
   {
     "id": 6,
     "sphere": "municipal",
-    "prompt": "O lixo da sua rua não é recolhido há dias e os sacos estão acumulados na calçada. A coleta de lixo domiciliar e a limpeza das ruas são contratadas por qual esfera?",
+    "prompt": "O caminhão de lixo não passa na sua rua há dias e os sacos estão se acumulando na calçada. A quem cabe garantir que a coleta seja feita?",
     "options": [
       { "id": "a", "text": "Governo do Estado", "isCorrect": false },
-      { "id": "b", "text": "Prefeitura Municipal", "isCorrect": true },
-      { "id": "c", "text": "Governo Federal", "isCorrect": false }
+      { "id": "b", "text": "Prefeitura", "isCorrect": true },
+      { "id": "c", "text": "Companhia estadual de saneamento", "isCorrect": false },
+      { "id": "d", "text": "Vereador do bairro", "isCorrect": false }
     ],
     "constitutionalArticle": "Art. 30, V da CF/88",
-    "explanation": "A coleta de lixo, varrição e destinação de resíduos sólidos urbanos são serviços essenciais de interesse local, administrados diretamente pelo Poder Executivo Municipal."
+    "explanation": "A coleta de lixo e a limpeza urbana são serviços de interesse local, de responsabilidade da Prefeitura. Mesmo quando uma empresa faz a coleta, ela foi contratada pela prefeitura, que deve fiscalizar o serviço. As companhias estaduais de saneamento costumam cuidar de água e esgoto, não do lixo."
   },
   {
     "id": 7,
     "sphere": "municipal",
-    "prompt": "Os ônibus municipais estão sempre lotados e os passageiros querem novas linhas e horários no bairro. Quem define as rotas e fiscaliza o contrato das empresas de transporte coletivo urbano?",
+    "prompt": "Os ônibus que circulam dentro da sua cidade vivem lotados, e os moradores querem uma linha nova passando pelo bairro. Quem pode criar essa linha?",
     "options": [
-      { "id": "a", "text": "Prefeitura / Secretaria de Transportes", "isCorrect": true },
-      { "id": "b", "text": "Polícia Rodoviária Federal", "isCorrect": false },
-      { "id": "c", "text": "Deputados Estaduais", "isCorrect": false }
+      { "id": "a", "text": "Governo do Estado", "isCorrect": false },
+      { "id": "b", "text": "Câmara de Vereadores", "isCorrect": false },
+      { "id": "c", "text": "A própria empresa de ônibus, por conta própria", "isCorrect": false },
+      { "id": "d", "text": "Prefeitura", "isCorrect": true }
     ],
     "constitutionalArticle": "Art. 30, V da CF/88",
-    "explanation": "Organizar e prestar o serviço de transporte coletivo intramunicipal é atribuição exclusiva do Município. O Executivo concede as linhas, assina as concessões e define trajetos e tarifas."
+    "explanation": "O transporte coletivo dentro do município é um serviço de interesse local: a Prefeitura cria linhas, define trajetos e fiscaliza as empresas concessionárias. Já as linhas que ligam cidades diferentes (intermunicipais) são responsabilidade do Governo do Estado."
   },
   {
     "id": 8,
     "sphere": "municipal",
-    "prompt": "Um morador decide construir um muro que invade a calçada e bloqueia a passagem de pedestres. Qual órgão público tem a autoridade de fiscalizar e embargar a obra?",
+    "prompt": "Um vizinho está construindo um muro que avança sobre a calçada e bloqueia a passagem de pedestres. Quem pode fiscalizar e embargar essa construção?",
     "options": [
-      { "id": "a", "text": "Fiscalização de Posturas e Obras da Prefeitura", "isCorrect": true },
-      { "id": "b", "text": "Câmara dos Deputados", "isCorrect": false },
-      { "id": "c", "text": "Corpo de Bombeiros", "isCorrect": false }
+      { "id": "a", "text": "Prefeitura", "isCorrect": true },
+      { "id": "b", "text": "Polícia Militar", "isCorrect": false },
+      { "id": "c", "text": "Câmara de Vereadores", "isCorrect": false },
+      { "id": "d", "text": "Corpo de Bombeiros", "isCorrect": false }
     ],
     "constitutionalArticle": "Art. 30, VIII da CF/88",
-    "explanation": "Promover o ordenamento territorial, fiscalizar loteamentos e garantir o cumprimento do plano diretor e das regras de calçadas são deveres da fiscalização da Prefeitura Municipal."
+    "explanation": "Ordenar o uso do solo urbano e fiscalizar obras e calçadas é dever da Prefeitura, que pode notificar, multar e embargar construções irregulares. A Polícia Militar cuida do policiamento, e o Corpo de Bombeiros, da prevenção a incêndios e emergências; nenhum dos dois aplica o código de obras da cidade."
   },
   {
     "id": 9,
     "sphere": "municipal",
-    "prompt": "Todo início de ano você precisa pagar o IPTU do seu imóvel. Para onde vai esse dinheiro e quem define as alíquotas do imposto?",
+    "prompt": "Todo começo de ano chega o boleto do IPTU do seu imóvel. Quem cobra esse imposto, e o que é preciso para aumentá-lo?",
     "options": [
-      { "id": "a", "text": "Vai direto para o Presidente da República.", "isCorrect": false },
-      { "id": "b", "text": "Arrecadado pela Prefeitura, com alíquotas aprovadas pela Câmara de Vereadores.", "isCorrect": true },
-      { "id": "c", "text": "Arrecadado pelo Governo do Estado para manter a Polícia Militar.", "isCorrect": false }
+      { "id": "a", "text": "A Prefeitura cobra, e o prefeito pode aumentá-lo por decreto", "isCorrect": false },
+      { "id": "b", "text": "O Estado cobra, e o aumento passa pela Assembleia", "isCorrect": false },
+      { "id": "c", "text": "A Prefeitura cobra, e o aumento depende de lei da Câmara", "isCorrect": true },
+      { "id": "d", "text": "A Receita Federal cobra, e o aumento passa pelo Congresso", "isCorrect": false }
     ],
-    "constitutionalArticle": "Art. 156, I da CF/88",
-    "explanation": "O IPTU é um tributo exclusivamente municipal. A cobrança é feita pela Prefeitura, mas o cálculo e a planta de valores precisam de aprovação legislativa da Câmara dos Vereadores."
+    "constitutionalArticle": "Art. 156, I e Art. 150, I da CF/88",
+    "explanation": "O IPTU é um imposto municipal, cobrado pela Prefeitura. Pela Constituição, nenhum imposto pode ser aumentado sem lei, então o aumento precisa ser aprovado pela Câmara de Vereadores. Por decreto, o prefeito só pode corrigir o valor pela inflação, sem aumento real."
   },
   {
     "id": 10,
     "sphere": "municipal",
-    "prompt": "Os moradores querem criar uma lei tornando obrigatório o plantio de árvores em calçadas largas do município. A aprovação e votação dessa nova norma é responsabilidade de quem?",
+    "prompt": "Os moradores querem uma regra que obrigue o plantio de árvores nas calçadas largas da cidade. Quem pode criar essa obrigação para todos?",
     "options": [
-      { "id": "a", "text": "Câmara Municipal (Vereadores)", "isCorrect": true },
-      { "id": "b", "text": "Secretaria de Obras", "isCorrect": false },
-      { "id": "c", "text": "Tribunal de Justiça", "isCorrect": false }
+      { "id": "a", "text": "Prefeito, por meio de um decreto", "isCorrect": false },
+      { "id": "b", "text": "Secretaria Municipal de Meio Ambiente", "isCorrect": false },
+      { "id": "c", "text": "Assembleia Legislativa", "isCorrect": false },
+      { "id": "d", "text": "Câmara de Vereadores, aprovando uma lei", "isCorrect": true }
     ],
-    "constitutionalArticle": "Art. 30, I da CF/88",
-    "explanation": "Criar, debater e votar as leis que valem para todo o território municipal é o papel central dos vereadores. Após aprovação na Câmara, a lei vai para sanção ou veto do Prefeito."
+    "constitutionalArticle": "Art. 30, I e Art. 5º, II da CF/88",
+    "explanation": "Criar uma obrigação para todos os moradores exige lei, e as leis municipais são votadas pela Câmara de Vereadores e depois seguem para sanção ou veto do prefeito. Um decreto do prefeito só regulamenta leis que já existem, porque ninguém é obrigado a fazer algo senão em virtude de lei."
   }
 ]

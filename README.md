@@ -27,7 +27,7 @@ O **Engrenum** é um Progressive Web App (PWA) que transforma essas dúvidas em 
 ## Como funciona
 
 1. **Trilha Federativa:** o jogador avança por níveis: *No Meu Bairro* (Municipal), *Ordem e Região* (Estadual), *Soberania e Leis Nacionais* (Federal) e o *Desafio Supremo*. Cada nível é liberado quando o anterior é concluído.
-2. **Cenários reais:** cada desafio apresenta uma situação do cotidiano e três opções de responsável.
+2. **Cenários reais:** cada desafio apresenta uma situação do cotidiano e quatro alternativas plausíveis, sem pistas no enunciado.
 3. **Escolha e verificação:** o jogador escolhe uma alternativa e confirma em **Verificar Resposta**.
 4. **Gaveta constitucional:** depois de responder, sobe uma explicação com o **artigo da CF/88**, o destinatário correto e o porquê.
 5. **3 fichas de credibilidade:** cada erro custa uma vida. Se as três acabarem, o nível recomeça.
@@ -94,9 +94,10 @@ As questões ficam em [`src/data/questions.json`](src/data/questions.json) e seg
   "sphere": "state",
   "prompt": "Houve uma sequência de assaltos nas paradas de ônibus da capital. Quem comanda o policiamento ostensivo das ruas?",
   "options": [
-    { "id": "a", "text": "Governador do Estado", "isCorrect": true },
-    { "id": "b", "text": "Prefeito da cidade", "isCorrect": false },
-    { "id": "c", "text": "Ministro da Justiça", "isCorrect": false }
+    { "id": "a", "text": "Prefeito", "isCorrect": false },
+    { "id": "b", "text": "Ministro da Justiça", "isCorrect": false },
+    { "id": "c", "text": "Governador", "isCorrect": true },
+    { "id": "d", "text": "Secretário Municipal de Segurança", "isCorrect": false }
   ],
   "constitutionalArticle": "Art. 144, § 6º da CF/88",
   "explanation": "As polícias militares e civis são subordinadas aos governadores dos estados e do Distrito Federal."
@@ -109,7 +110,18 @@ As questões ficam em [`src/data/questions.json`](src/data/questions.json) e seg
 - `constitutionalArticle` sempre cita a base na CF/88.
 - O texto é neutro, institucional e não menciona políticos em atividade.
 
-Os testes validam o banco de questões. Um `id` repetido, uma questão sem resposta correta ou sem citação da CF/88 faz o teste falhar.
+**A resposta nunca pode ser óbvia:**
+- O enunciado descreve a situação **sem citar a esfera ou o órgão** que responde por ela. Por exemplo, nada de "creche *municipal*" quando a resposta é a Secretaria Municipal.
+- São **quatro alternativas plausíveis**, com confusões reais: Executivo × Legislativo, município × estado × União, quem repassa a verba × quem executa, decreto × lei.
+- As alternativas têm tamanho e nível de detalhe parecidos. A certa não pode ser a única longa ou "completa".
+- A posição da alternativa certa varia entre as questões.
+
+Os testes validam o banco de questões. Fazem o teste falhar:
+- um `id` repetido;
+- uma questão sem resposta correta ou sem citação da CF/88;
+- uma questão com menos de 4 alternativas;
+- uma resposta correta repetida no enunciado;
+- a resposta certa concentrada numa mesma posição ou sendo a mais longa com frequência.
 
 ## Qualidade e contribuição
 

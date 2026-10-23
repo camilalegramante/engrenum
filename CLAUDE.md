@@ -129,14 +129,15 @@ An array of `Question` objects. Level 1 (Municipal) currently has 10 scenarios; 
 {
   "id": 1,
   "sphere": "municipal",
-  "prompt": "A rua da sua casa está cheia de buracos, danificando veículos e colocando pedestres em risco. Quem tem a obrigação de mandar a equipe de obras e recapear o asfalto?",
+  "prompt": "A rua do seu bairro está cheia de buracos, danificando carros e colocando pedestres em risco. Quem tem o dever de mandar uma equipe tapar esses buracos?",
   "options": [
-    { "id": "a", "text": "Prefeito / Secretaria de Obras", "isCorrect": true },
-    { "id": "b", "text": "Vereador do bairro", "isCorrect": false },
-    { "id": "c", "text": "Governador do Estado", "isCorrect": false }
+    { "id": "a", "text": "O vereador mais votado do bairro", "isCorrect": false },
+    { "id": "b", "text": "Prefeito", "isCorrect": true },
+    { "id": "c", "text": "Governador", "isCorrect": false },
+    { "id": "d", "text": "Câmara de Vereadores", "isCorrect": false }
   ],
   "constitutionalArticle": "Art. 30, V da CF/88",
-  "explanation": "A manutenção de vias públicas urbanas é serviço de interesse local, responsabilidade direta da Prefeitura. O vereador pode solicitar ou cobrar, mas não administra máquinas de asfalto nem o orçamento das obras."
+  "explanation": "A conservação de ruas e o tapa-buraco são serviços de interesse local, executados pela Prefeitura. Vereadores, sozinhos ou reunidos na Câmara, podem cobrar e fiscalizar, mas não comandam equipes nem contratam obras. O Governador cuida das rodovias estaduais, não das ruas da cidade."
 }
 ```
 
@@ -144,6 +145,13 @@ Rules for new questions:
 - Unique numeric `id`; exactly one option with `isCorrect: true`.
 - `sphere` uses the English keys (`municipal` | `state` | `federal`); levels pick up questions by sphere automatically (`src/data/levels.ts`).
 - Every question cites its CF/88 basis in `constitutionalArticle`.
+
+Difficulty rules (the answer must never be obvious):
+- **Neutral prompt:** describe the situation without naming the sphere, body, or office that answers it (no "creche *municipal*" when the answer is the municipal secretariat, no "equipe *de obras*" when the answer is the works department).
+- **Four plausible alternatives:** distractors must be real, common confusions (Executive × Legislative, municipality × state × Union, who funds × who executes, decree × law), never absurd options.
+- **No length or detail giveaway:** alternatives have similar length and specificity; the correct one must not be the only long, qualified, or "complete-sounding" option.
+- **Vary the position** of the correct answer across the dataset.
+- `src/data/levels.test.ts` enforces four alternatives, no correct-answer text inside the prompt, spread-out positions, and the correct option being the longest in at most 1/3 of the questions.
 
 ---
 
