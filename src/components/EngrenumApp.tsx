@@ -72,7 +72,7 @@ export default function EngrenumApp() {
           aria-labelledby="chest-title"
         >
           <div className="w-full max-w-sm space-y-4 rounded-2xl border-2 border-rep-navy bg-white p-6 text-center shadow-neo">
-            <Mascot className="mx-auto h-28 w-28" />
+            <Mascot className="mx-auto h-32 w-28" />
             <div>
               <h2 id="chest-title" className="font-brand text-xl font-bold text-rep-navy">
                 Baú aberto!

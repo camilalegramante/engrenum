@@ -33,13 +33,13 @@ describe("Dashboard", () => {
     expect(node("Saúde, escola e calçada")).toHaveAccessibleName("Saúde, escola e calçada: bloqueada");
     expect(screen.getByText("Jogar")).toBeVisible();
     expect(screen.getByText(LEVELS[0].mascotTip)).toBeVisible();
-    expect(screen.getByRole("img", { name: "Engrenito, o mascote do Engrenum" })).toBeVisible();
+    expect(screen.getByRole("img", { name: "Capivara, mascote do Engrenum, acenando" })).toBeVisible();
   });
 
   it("shows coming-soon levels with placeholder steps and a sleepy mascot", () => {
     renderDashboard();
     expect(screen.getAllByTestId("ghost-node")).toHaveLength(9);
-    expect(screen.getAllByRole("img", { name: "Engrenito cochilando" })).toHaveLength(3);
+    expect(screen.getAllByRole("img", { name: "Capivara cochilando" })).toHaveLength(3);
   });
 
   it("opens a lesson card and starts the lesson", async () => {
@@ -118,7 +118,7 @@ describe("Dashboard", () => {
     const state = screen.getByRole("region", { name: "Ordem e Região" });
     expect(within(state).getByText("0/2 ETAPAS")).toBeVisible();
     expect(within(state).queryByText(LEVELS[1].mascotTip)).toBeVisible();
-    expect(within(state).getByRole("img", { name: "Engrenito cochilando" })).toBeVisible();
+    expect(within(state).getByRole("img", { name: "Capivara cochilando" })).toBeVisible();
   });
 
   it("uses the singular for single-scenario lessons", async () => {

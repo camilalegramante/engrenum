@@ -216,7 +216,7 @@ export default function LearningPathUnit({
               {level.mascotTip}
             </p>
           )}
-          <Mascot mood={isDimmed ? "sleepy" : "happy"} className="h-24 w-24" />
+          <Mascot mood={isDimmed ? "sleepy" : "happy"} className="h-36 w-28" />
         </div>
 
         {isComingSoon ? (

@@ -26,7 +26,7 @@ O **Engrenum** é um Progressive Web App (PWA) que transforma essas dúvidas em 
 
 ## Como funciona
 
-1. **Trilha de aprendizado:** a tela inicial é uma trilha sinuosa de etapas, acompanhada pelo **Engrenito**, o mascote-engrenagem do app. Cada nível tem um banner: *No Meu Bairro* (Municipal), *Ordem e Região* (Estadual), *Soberania e Leis Nacionais* (Federal) e o *Desafio Supremo*.
+1. **Trilha de aprendizado:** a tela inicial é uma trilha sinuosa de etapas, acompanhada pela **capivara mascote** do Engrenum, de óculos e colete, acenando. Cada nível tem um banner: *No Meu Bairro* (Municipal), *Ordem e Região* (Estadual), *Soberania e Leis Nacionais* (Federal) e o *Desafio Supremo*.
 2. **Lições curtas:** cada nível é dividido em lições temáticas de 2 a 3 cenários (por exemplo, "Serviços do bairro" e "De olho no dinheiro"). A próxima etapa fica destacada com o balão **JOGAR**. Ao tocar numa etapa, abre um cartão com os detalhes e o botão para começar.
 3. **Baú de recompensa:** no meio da trilha há um baú que dá **+20 XP** de bônus.
 4. **Desafio final:** reúne todos os cenários do nível. Vencer o desafio conclui o nível e libera o próximo.
