@@ -247,7 +247,7 @@ export default function EngrenumQuiz({
               disabled={!selectedOptionId}
               className={`civic-btn min-h-[44px] w-full rounded-xl border-2 py-3.5 font-brand text-sm font-bold uppercase tracking-wider sm:w-auto sm:px-10 ${
                 selectedOptionId
-                  ? "cursor-pointer border-rep-navy bg-rep-navy text-white shadow-neo hover:bg-rep-navy-light"
+                  ? "border-rep-navy bg-rep-navy text-white shadow-neo hover:bg-rep-navy-light"
                   : "cursor-not-allowed border-slate-300 bg-slate-200 text-slate-400"
               }`}
             >
