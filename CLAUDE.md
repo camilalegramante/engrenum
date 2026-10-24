@@ -21,7 +21,7 @@ Consolidated context, architecture guidelines, and data contracts for developmen
 - **Styling:** Tailwind CSS v4 with CSS-first configuration — design tokens live in `@theme` inside `src/app/globals.css` (there is no `tailwind.config.ts`).
 - **Visual Identity:** "República" civic/neo-brutalist palette — navy (`rep-navy` `#0b132b`) and gold (`rep-gold` `#e09f3e`), with emerald (`rep-emerald`) for correct answers and crimson (`rep-crimson`) for errors. Hard offset shadows (`shadow-neo`, `shadow-neo-gold`, `shadow-neo-emerald`) and 2px navy borders. Light theme only.
 - **Typography:** Plus Jakarta Sans (body, `font-sans`) and Space Grotesk (headings, labels, numbers, `font-brand`), loaded via `next/font/google`.
-- **Code Language:** **100% English** for variables, functions, interfaces, properties, components, folders, and technical identifiers. User-facing content (strings, prompts, explanations, CF/88 articles) remains in **pt-BR**.
+- **Code Language:** **100% English** for variables, functions, interfaces, properties, components, folders, and technical identifiers. User-facing content (strings, prompts, explanations, CF/88 articles) remains in **pt-BR** and lives in content files, never inline in components (see section 8, "No Hardcoded Strings").
 - **Testing:** Vitest + React Testing Library (jsdom) with V8 coverage — **minimum 90%** for statements, branches, functions, and lines (see section 9).
 - **Data Layer (MVP):** Static JSON file at `src/data/questions.json`.
 - **Local Persistence (MVP):** Player progress (XP, streak, completed levels, sound preference) in `localStorage`, exposed through `useSyncExternalStore` (`src/lib/progress.ts`). Must degrade gracefully when storage is unavailable.
@@ -56,6 +56,7 @@ engrenum/
 │   ├── data/
 │   │   ├── levels.ts            # LEVELS + themed lessons, constants, rank/civic-title helpers
 │   │   ├── questions.json
+│   │   ├── strings.ts           # STRINGS: every pt-BR UI text (labels, buttons, aria, feedback), grouped by screen
 │   │   └── swipeCards.json      # SwipeCard deck for "Fato ou Fake Eleitoral"
 │   ├── lib/
 │   │   ├── path.ts              # buildPath(): levels + progress → path units/nodes with status
@@ -278,6 +279,12 @@ Plays one `QuizSession` (a lesson or a challenge); state lives in a single `Game
 ## 8. Engineering Standards
 - **English-Only Identifiers:** Keep all types, functions, variables, hooks, state variables, interfaces, and file names strictly in English. Code comments are in English too.
 - **Strict TypeScript:** No `any`. Explicitly declare prop types, return signatures, and domain models; shared domain types live in `src/types/quiz.ts`.
+- **No Hardcoded Strings:** Never write user-facing text inline in components or logic. Every pt-BR string the player can see or hear (headings, buttons, labels, `aria-label`, `alt`, `title`, feedback, placeholders) comes from `src/data/strings.ts`, exported as a typed `STRINGS` object grouped by screen/component (`STRINGS.quiz.verify`, `STRINGS.hud.back`, ...).
+  - Text with values is a function in the same file (`` lessonProgress: (n: number, total: number) => `Lição ${n} de ${total}` ``), never string concatenation in the component.
+  - Content datasets stay in their own files (`questions.json`, `swipeCards.json`, level/rank/civic-title definitions in `levels.ts`).
+  - Decorative glyphs used as icons (`aria-hidden` emoji, ✓/✕) and bare formatting symbols (`+`, `%`, `/`) may stay in JSX.
+  - Technical strings are not user-facing and stay in code: class names, storage keys, ids, sound effect names, enum-like unions, URLs, metadata keys.
+  - Tests query by `STRINGS` (`getByRole("button", { name: STRINGS.quiz.verify })`) so copy edits don't break them.
 - **No Unused Code:** Remove unreferenced imports, dead code, unused assets, and unused theme tokens.
 - **Mobile-First UX:** Minimum touch target of 44×44px (`min-h-[44px]` / `min-w-[44px]`) for every interactive element; layout must work at 375px width without horizontal scroll.
 - **Accessibility:** Icon-only buttons need `aria-label`; feedback uses `role="status"` / `aria-live`; animations are disabled under `prefers-reduced-motion`.
