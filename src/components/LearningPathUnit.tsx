@@ -243,18 +243,10 @@ export default function LearningPathUnit({
                     style={{ transform: `translateX(${WINDING_OFFSETS[i % WINDING_OFFSETS.length] * direction}px)` }}
                   >
                     {node.status === "current" && (
-                      <>
-                        <span
-                          className="pointer-events-none absolute inset-0 animate-pulse-ring rounded-full"
-                          aria-hidden="true"
-                        />
-                        <span
-                          className="absolute -top-7 left-1/2 z-10 animate-bob whitespace-nowrap rounded-lg border-2 border-rep-navy bg-white px-2.5 py-0.5 font-brand text-xs font-bold uppercase tracking-wider text-rep-navy shadow-neo"
-                          aria-hidden="true"
-                        >
-                          Jogar
-                        </span>
-                      </>
+                      <span
+                        className="pointer-events-none absolute inset-0 animate-pulse-ring rounded-full"
+                        aria-hidden="true"
+                      />
                     )}
                     <button
                       type="button"
@@ -265,6 +257,15 @@ export default function LearningPathUnit({
                       className={`civic-btn relative flex items-center justify-center rounded-full border-2 ${size} ${NODE_STYLES[node.status]}`}
                     >
                       <NodeIcon node={node} />
+                      {/* Inside the button so the callout is clickable too */}
+                      {node.status === "current" && (
+                        <span
+                          className="absolute -top-7 left-1/2 z-10 animate-bob whitespace-nowrap rounded-lg border-2 border-rep-navy bg-white px-2.5 py-0.5 font-brand text-xs font-bold uppercase tracking-wider text-rep-navy shadow-neo"
+                          aria-hidden="true"
+                        >
+                          Jogar
+                        </span>
+                      )}
                     </button>
                   </div>
                   {isSelected && (

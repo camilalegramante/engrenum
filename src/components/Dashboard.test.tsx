@@ -43,6 +43,13 @@ describe("Dashboard", () => {
     expect(screen.getByRole("img", { name: "Capivara, mascote do Engrenum, acenando" })).toBeVisible();
   });
 
+  it("opens the next step when the 'Jogar' callout is clicked", async () => {
+    renderDashboard();
+    await userEvent.click(screen.getByText("Jogar"));
+    expect(node("Serviços do bairro")).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("button", { name: "Começar" })).toBeVisible();
+  });
+
   it("shows coming-soon levels with placeholder steps and a sleepy mascot", () => {
     renderDashboard();
     expect(screen.getAllByTestId("ghost-node")).toHaveLength(9);
