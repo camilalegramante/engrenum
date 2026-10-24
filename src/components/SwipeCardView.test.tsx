@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { STRINGS } from "@/data/strings";
 import swipeCardsData from "@/data/swipeCards.json";
 import { playSound } from "@/lib/sound";
 import type { SwipeCard } from "@/types/swipe";
@@ -50,40 +51,40 @@ beforeEach(() => {
 describe("SwipeCardView", () => {
   it("shows the current promise with its speaker, the mascot and the round progress", () => {
     renderSwipe();
-    expect(card()).toHaveAccessibleName("“Vou mudar o Código Penal.”");
+    expect(card()).toHaveAccessibleName(STRINGS.swipe.statement(CARDS[0].statement));
     expect(screen.getByText("Candidato a Vereador")).toBeVisible();
-    expect(screen.getByText("Carta 1 de 2")).toBeVisible();
-    expect(screen.getByRole("img", { name: "Capivara, mascote do Engrenum, acenando" })).toBeVisible();
-    expect(screen.getByRole("progressbar", { name: "Progresso do nível" })).toHaveAttribute("aria-valuenow", "0");
+    expect(screen.getByText(STRINGS.swipe.cardCounter(1, 2))).toBeVisible();
+    expect(screen.getByRole("img", { name: STRINGS.mascot.waving })).toBeVisible();
+    expect(screen.getByRole("progressbar", { name: STRINGS.hud.progress })).toHaveAttribute("aria-valuenow", "0");
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
   it("plays the bundled deck by default", () => {
     renderSwipe(null);
-    expect(screen.getByText(`Carta 1 de ${swipeCardsData.length}`)).toBeVisible();
+    expect(screen.getByText(STRINGS.swipe.cardCounter(1, swipeCardsData.length))).toBeVisible();
     expect(card()).toHaveTextContent(swipeCardsData[0].statement);
   });
 
   it("confirms a correct call with the CF/88 article and explanation", async () => {
     const { onCorrectAnswer } = renderSwipe();
-    await userEvent.click(screen.getByRole("button", { name: "Promessa ilegal" }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.swipe.illegalAction }));
 
     const drawer = screen.getByRole("status");
-    expect(drawer).toHaveTextContent("Fato checado!");
-    expect(drawer).toHaveTextContent("Promessa ilegal: invade a competência de outro poder ou esfera.");
+    expect(drawer).toHaveTextContent(STRINGS.swipe.correctTitle);
+    expect(drawer).toHaveTextContent(STRINGS.swipe.illegalVerdict);
     expect(drawer).toHaveTextContent("Art. 22, I da CF/88");
     expect(drawer).toHaveTextContent("Direito penal é competência privativa da União.");
     expect(onCorrectAnswer).toHaveBeenCalledOnce();
     expect(playSound).toHaveBeenLastCalledWith("correct", true);
-    expect(screen.queryByRole("button", { name: "Legítimo" })).not.toBeInTheDocument();
-    expect(screen.getByRole("progressbar", { name: "Progresso do nível" })).toHaveAttribute("aria-valuenow", "50");
+    expect(screen.queryByRole("button", { name: STRINGS.swipe.legitimateAction })).not.toBeInTheDocument();
+    expect(screen.getByRole("progressbar", { name: STRINGS.hud.progress })).toHaveAttribute("aria-valuenow", "50");
   });
 
   it("corrects a wrong call without awarding XP", async () => {
     const { onCorrectAnswer } = renderSwipe();
-    await userEvent.click(screen.getByRole("button", { name: "Legítimo" }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.swipe.legitimateAction }));
 
-    expect(screen.getByRole("status")).toHaveTextContent("Caiu na promessa!");
+    expect(screen.getByRole("status")).toHaveTextContent(STRINGS.swipe.wrongTitle);
     expect(onCorrectAnswer).not.toHaveBeenCalled();
     expect(playSound).toHaveBeenLastCalledWith("error", true);
   });
@@ -91,19 +92,19 @@ describe("SwipeCardView", () => {
   it("decides by swiping: left for illegal, right for legitimate", async () => {
     const { onCorrectAnswer } = renderSwipe();
     drag(200, 50);
-    expect(screen.getByRole("status")).toHaveTextContent("Fato checado!");
+    expect(screen.getByRole("status")).toHaveTextContent(STRINGS.swipe.correctTitle);
 
-    await userEvent.click(screen.getByRole("button", { name: "Próxima Carta →" }));
-    expect(screen.getByText("Carta 2 de 2")).toBeVisible();
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.swipe.nextCard }));
+    expect(screen.getByText(STRINGS.swipe.cardCounter(2, 2))).toBeVisible();
     drag(50, 200);
-    expect(screen.getByRole("status")).toHaveTextContent("Promessa legítima: está dentro das competências do cargo.");
+    expect(screen.getByRole("status")).toHaveTextContent(STRINGS.swipe.legitimateVerdict);
     expect(onCorrectAnswer).toHaveBeenCalledTimes(2);
   });
 
   it("tilts the card and fades in a verdict stamp while dragging", () => {
     renderSwipe();
-    const legitimateStamp = screen.getByText("Legítimo", { selector: "span" });
-    const illegalStamp = screen.getByText("Ilegal");
+    const legitimateStamp = screen.getByText(STRINGS.swipe.legitimateStamp, { selector: "span" });
+    const illegalStamp = screen.getByText(STRINGS.swipe.illegalStamp);
     expect(legitimateStamp).toHaveStyle({ opacity: "0" });
 
     fireEvent.pointerDown(card(), { clientX: 100, pointerId: 1 });
@@ -137,38 +138,38 @@ describe("SwipeCardView", () => {
 
   it("ignores drags on a card that was already decided", async () => {
     renderSwipe();
-    await userEvent.click(screen.getByRole("button", { name: "Promessa ilegal" }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.swipe.illegalAction }));
     drag(0, 300);
     expect(card().style.transform).toBe("translateX(-600px) rotate(-15deg)");
   });
 
   it("shows the round summary, then restarts or exits", async () => {
     const { onExit } = renderSwipe();
-    await userEvent.click(screen.getByRole("button", { name: "Promessa ilegal" }));
-    await userEvent.click(screen.getByRole("button", { name: "Próxima Carta →" }));
-    await userEvent.click(screen.getByRole("button", { name: "Promessa ilegal" }));
-    await userEvent.click(screen.getByRole("button", { name: "Ver Resultado" }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.swipe.illegalAction }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.swipe.nextCard }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.swipe.illegalAction }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.common.seeResult }));
 
-    expect(screen.getByText("Rodada Concluída")).toBeVisible();
+    expect(screen.getByText(STRINGS.swipe.roundDoneBadge)).toBeVisible();
     expect(screen.getByRole("heading", { name: "Cidadão Atento" })).toBeVisible();
-    expect(screen.getByText("Acertos").nextElementSibling).toHaveTextContent("1/2");
-    expect(screen.getByText("Aproveitamento").nextElementSibling).toHaveTextContent("50%");
-    expect(screen.getByText("Pontos").nextElementSibling).toHaveTextContent("+15 XP");
+    expect(screen.getByText(STRINGS.swipe.hitsLabel).nextElementSibling).toHaveTextContent("1/2");
+    expect(screen.getByText(STRINGS.swipe.accuracyLabel).nextElementSibling).toHaveTextContent("50%");
+    expect(screen.getByText(STRINGS.swipe.pointsLabel).nextElementSibling).toHaveTextContent("+15 XP");
 
-    await userEvent.click(screen.getByRole("button", { name: "Jogar Novamente" }));
-    expect(screen.getByText("Carta 1 de 2")).toBeVisible();
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.common.playAgain }));
+    expect(screen.getByText(STRINGS.swipe.cardCounter(1, 2))).toBeVisible();
 
-    await userEvent.click(screen.getByRole("button", { name: "Voltar ao mapa" }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.hud.back }));
     expect(onExit).toHaveBeenCalledOnce();
   });
 
   it("returns to the path from the summary", async () => {
     const { onExit } = renderSwipe([CARDS[0]]);
-    await userEvent.click(screen.getByRole("button", { name: "Promessa ilegal" }));
-    await userEvent.click(screen.getByRole("button", { name: "Ver Resultado" }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.swipe.illegalAction }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.common.seeResult }));
     expect(screen.getByRole("heading", { name: "Guardião da Constituição" })).toBeVisible();
 
-    await userEvent.click(screen.getByRole("button", { name: "Voltar à Trilha" }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.common.backToPath }));
     expect(onExit).toHaveBeenCalledOnce();
   });
 });

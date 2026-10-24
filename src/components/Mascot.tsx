@@ -1,4 +1,5 @@
 import Image, { getImageProps } from "next/image";
+import { STRINGS } from "@/data/strings";
 
 interface MascotProps {
   mood?: "happy" | "sleepy";
@@ -15,7 +16,7 @@ export default function Mascot({ mood = "happy", className = "" }: MascotProps) 
       <span className={`relative inline-block ${className}`}>
         <Image
           src="/mascot/capybara-sleepy.webp"
-          alt="Capivara cochilando"
+          alt={STRINGS.mascot.sleepy}
           {...MASCOT_SIZE}
           unoptimized
           className="h-full w-full object-contain opacity-70 grayscale"
@@ -30,7 +31,7 @@ export default function Mascot({ mood = "happy", className = "" }: MascotProps) 
   // Animated WebP, with a still fallback for people who prefer reduced motion.
   const { props } = getImageProps({
     src: "/mascot/capybara-wave.webp",
-    alt: "Capivara, mascote do Engrenum, acenando",
+    alt: STRINGS.mascot.waving,
     ...MASCOT_SIZE,
     unoptimized: true,
   });

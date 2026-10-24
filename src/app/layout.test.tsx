@@ -1,5 +1,6 @@
 import { isValidElement, type ReactElement } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { STRINGS } from "@/data/strings";
 import RootLayout, { metadata, viewport } from "./layout";
 
 vi.mock("next/font/google", () => ({
@@ -27,7 +28,7 @@ describe("RootLayout", () => {
   });
 
   it("exposes the project title and Apple icon", () => {
-    expect(metadata.title).toBe("Engrenum — A mecânica do poder público");
+    expect(metadata.title).toBe(STRINGS.app.title);
     expect(metadata.icons).toEqual({ apple: "/icon-192.png" });
   });
 });

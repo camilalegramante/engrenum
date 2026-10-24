@@ -1,11 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { STRINGS } from "@/data/strings";
 import Mascot from "./Mascot";
 
 describe("Mascot", () => {
   it("waves with the animated capybara and falls back to a still for reduced motion", () => {
     const { container } = render(<Mascot className="h-24 w-24" />);
-    const image = screen.getByRole("img", { name: "Capivara, mascote do Engrenum, acenando" });
+    const image = screen.getByRole("img", { name: STRINGS.mascot.waving });
 
     expect(image).toHaveAttribute("src", "/mascot/capybara-wave.webp");
     expect(image).toHaveAttribute("width", "140");
@@ -17,7 +18,7 @@ describe("Mascot", () => {
 
   it("naps in grayscale when sleepy", () => {
     render(<Mascot mood="sleepy" className="h-24 w-24" />);
-    const image = screen.getByRole("img", { name: "Capivara cochilando" });
+    const image = screen.getByRole("img", { name: STRINGS.mascot.sleepy });
     expect(image).toHaveAttribute("src", "/mascot/capybara-sleepy.webp");
     expect(image).toHaveClass("grayscale");
   });

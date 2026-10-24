@@ -1,18 +1,19 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { STRINGS } from "@/data/strings";
 import HudHeader from "./HudHeader";
 
 describe("HudHeader", () => {
   it("shows the brand, streak and XP on the dashboard, without lesson controls", () => {
     render(<HudHeader xp={45} streak={3} isSoundEnabled onToggleSound={vi.fn()} />);
 
-    expect(screen.getByText("Engrenum")).toBeVisible();
-    expect(screen.getByTitle("Dias seguidos de foco cívico")).toHaveTextContent("3");
-    expect(screen.getByTitle("Pontos de cidadania (XP)")).toHaveTextContent("45");
-    expect(screen.queryByRole("button", { name: "Voltar ao mapa" })).not.toBeInTheDocument();
+    expect(screen.getByText(STRINGS.app.name)).toBeVisible();
+    expect(screen.getByTitle(STRINGS.hud.streakTitle)).toHaveTextContent("3");
+    expect(screen.getByTitle(STRINGS.hud.xpTitle)).toHaveTextContent("45");
+    expect(screen.queryByRole("button", { name: STRINGS.hud.back })).not.toBeInTheDocument();
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
-    expect(screen.queryByTitle("Fichas de credibilidade (vidas)")).not.toBeInTheDocument();
+    expect(screen.queryByTitle(STRINGS.hud.livesTitle)).not.toBeInTheDocument();
   });
 
   it("shows back button, progress and lives during a lesson", async () => {
@@ -30,11 +31,11 @@ describe("HudHeader", () => {
     );
 
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "33");
-    expect(screen.getByTitle("Fichas de credibilidade (vidas)")).toHaveTextContent("2");
+    expect(screen.getByTitle(STRINGS.hud.livesTitle)).toHaveTextContent("2");
     // The streak gives its room to the progress bar on small screens
-    expect(screen.getByTitle("Dias seguidos de foco cívico")).toHaveClass("hidden", "sm:flex");
+    expect(screen.getByTitle(STRINGS.hud.streakTitle)).toHaveClass("hidden", "sm:flex");
 
-    await userEvent.click(screen.getByRole("button", { name: "Voltar ao mapa" }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.hud.back }));
     expect(onBack).toHaveBeenCalledOnce();
   });
 
@@ -42,13 +43,13 @@ describe("HudHeader", () => {
     const onToggleSound = vi.fn();
     const { rerender } = render(<HudHeader xp={0} streak={0} isSoundEnabled onToggleSound={onToggleSound} />);
 
-    const soundButton = screen.getByRole("button", { name: "Desativar som" });
+    const soundButton = screen.getByRole("button", { name: STRINGS.hud.disableSound });
     expect(soundButton).toHaveAttribute("aria-pressed", "true");
     await userEvent.click(soundButton);
     expect(onToggleSound).toHaveBeenCalledOnce();
 
     rerender(<HudHeader xp={0} streak={0} isSoundEnabled={false} onToggleSound={onToggleSound} />);
-    expect(screen.getByRole("button", { name: "Ativar som" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: STRINGS.hud.enableSound })).toHaveAttribute("aria-pressed", "false");
   });
 
   it("widens to match the dashboard layout when asked", () => {

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
+import { STRINGS } from "@/data/strings";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -15,9 +16,9 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Engrenum — A mecânica do poder público",
-  description: "Aprenda a divisão real de atribuições dos poderes e esferas de governo de acordo com a CF/88.",
-  appleWebApp: { capable: true, title: "Engrenum", statusBarStyle: "default" },
+  title: STRINGS.app.title,
+  description: STRINGS.app.description,
+  appleWebApp: { capable: true, title: STRINGS.app.name, statusBarStyle: "default" },
   icons: { apple: "/icon-192.png" },
 };
 

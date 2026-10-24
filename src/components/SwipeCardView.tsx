@@ -4,6 +4,7 @@ import { useState, type PointerEvent } from "react";
 import HudHeader from "@/components/HudHeader";
 import Mascot from "@/components/Mascot";
 import { XP_PER_CORRECT_ANSWER, getCivicTitle } from "@/data/levels";
+import { STRINGS } from "@/data/strings";
 import swipeCardsData from "@/data/swipeCards.json";
 import { playSound } from "@/lib/sound";
 import type { SwipeCard, SwipeFeedback } from "@/types/swipe";
@@ -125,30 +126,30 @@ export default function SwipeCardView({
         <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center px-4 py-8 text-center">
           <Mascot className="mb-4 h-32 w-28" />
           <span className="mb-2 rounded-full bg-rep-navy px-3 py-1 font-brand text-xs font-bold uppercase tracking-widest text-rep-gold">
-            Rodada Concluída
+            {STRINGS.swipe.roundDoneBadge}
           </span>
           <h2 className="font-brand text-2xl font-bold tracking-tight text-rep-navy sm:text-3xl">{civicTitle.name}</h2>
           <p className="mt-1 max-w-sm text-sm font-medium text-rep-muted">{civicTitle.description}</p>
 
           <dl className="my-6 grid w-full max-w-sm grid-cols-3 gap-3">
             <div className="rounded-xl border-2 border-rep-navy bg-white p-3 text-left shadow-sm">
-              <dt className="font-brand text-[11px] font-bold uppercase text-rep-muted">Acertos</dt>
+              <dt className="font-brand text-[11px] font-bold uppercase text-rep-muted">{STRINGS.swipe.hitsLabel}</dt>
               <dd className="mt-1 font-brand text-xl font-bold text-rep-navy">
                 {score}
                 <span className="font-sans text-xs text-rep-muted">/{totalCards}</span>
               </dd>
             </div>
             <div className="rounded-xl border-2 border-rep-navy bg-white p-3 text-left shadow-sm">
-              <dt className="font-brand text-[11px] font-bold uppercase text-rep-muted">Aproveitamento</dt>
+              <dt className="font-brand text-[11px] font-bold uppercase text-rep-muted">{STRINGS.swipe.accuracyLabel}</dt>
               <dd className="mt-1 font-brand text-xl font-bold text-rep-emerald">
                 {accuracy}
                 <span className="font-sans text-xs">%</span>
               </dd>
             </div>
             <div className="rounded-xl border-2 border-rep-navy bg-white p-3 text-left shadow-sm">
-              <dt className="font-brand text-[11px] font-bold uppercase text-rep-muted">Pontos</dt>
+              <dt className="font-brand text-[11px] font-bold uppercase text-rep-muted">{STRINGS.swipe.pointsLabel}</dt>
               <dd className="mt-1 font-brand text-xl font-bold text-rep-navy">
-                +{score * XP_PER_CORRECT_ANSWER} <span className="font-sans text-xs text-rep-gold">XP</span>
+                +{score * XP_PER_CORRECT_ANSWER} <span className="font-sans text-xs text-rep-gold">{STRINGS.common.xp}</span>
               </dd>
             </div>
           </dl>
@@ -159,14 +160,14 @@ export default function SwipeCardView({
               onClick={onExit}
               className="civic-btn min-h-[44px] w-full rounded-xl border-2 border-rep-navy bg-rep-navy py-4 font-brand text-sm font-bold uppercase tracking-wider text-white shadow-neo hover:bg-rep-navy-light"
             >
-              Voltar à Trilha
+              {STRINGS.common.backToPath}
             </button>
             <button
               type="button"
               onClick={handleRestart}
               className="civic-btn min-h-[44px] w-full rounded-xl border-2 border-rep-navy bg-white py-4 font-brand text-sm font-bold uppercase tracking-wider text-rep-navy shadow-neo hover:bg-slate-50"
             >
-              Jogar Novamente
+              {STRINGS.common.playAgain}
             </button>
           </div>
         </main>
@@ -196,14 +197,15 @@ export default function SwipeCardView({
 
       <main className={`mx-auto w-full max-w-xl flex-1 overflow-x-clip px-4 py-6 ${isDecided ? "pb-80" : ""}`}>
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h1 className="font-brand text-sm font-bold uppercase tracking-wider text-rep-navy">Fato ou Fake Eleitoral</h1>
+          <h1 className="font-brand text-sm font-bold uppercase tracking-wider text-rep-navy">{STRINGS.swipe.title}</h1>
           <span className="shrink-0 font-brand text-xs font-semibold text-rep-muted">
-            Carta {currentIndex + 1} de {totalCards}
+            {STRINGS.swipe.cardCounter(currentIndex + 1, totalCards)}
           </span>
         </div>
         <p className="mb-5 text-sm text-rep-muted">
-          Arraste para a <strong className="text-rep-emerald-dark">direita</strong> se a promessa cabe ao cargo, ou para a{" "}
-          <strong className="text-rep-crimson">esquerda</strong> se ela é inconstitucional.
+          {STRINGS.swipe.hintStart} <strong className="text-rep-emerald-dark">{STRINGS.swipe.hintRight}</strong>{" "}
+          {STRINGS.swipe.hintMiddle} <strong className="text-rep-crimson">{STRINGS.swipe.hintLeft}</strong>{" "}
+          {STRINGS.swipe.hintEnd}
         </p>
 
         <div className="grid">
@@ -240,14 +242,14 @@ export default function SwipeCardView({
             </span>
 
             <p id="swipe-statement" className="text-lg font-bold leading-snug text-rep-navy sm:text-xl">
-              “{currentCard.statement}”
+              {STRINGS.swipe.statement(currentCard.statement)}
             </p>
 
             <div className="flex items-center gap-3 rounded-xl border border-rep-border bg-rep-cream p-3">
               <Mascot className="h-16 w-12 shrink-0" />
               <p className="text-xs font-semibold leading-snug text-rep-slate">
-                <span className="font-brand font-bold text-rep-navy">Capi pergunta:</span> essa promessa cabe nas competências
-                do cargo?
+                <span className="font-brand font-bold text-rep-navy">{STRINGS.swipe.mascotLead}</span>{" "}
+                {STRINGS.swipe.mascotQuestion}
               </p>
             </div>
 
@@ -257,14 +259,14 @@ export default function SwipeCardView({
               className="pointer-events-none absolute left-4 top-4 -rotate-12 rounded-lg border-4 border-rep-emerald bg-emerald-50/90 px-3 py-1 font-brand text-xl font-bold uppercase text-rep-emerald-dark"
               style={{ opacity: legitimateHintOpacity }}
             >
-              Legítimo
+              {STRINGS.swipe.legitimateStamp}
             </span>
             <span
               aria-hidden="true"
               className="pointer-events-none absolute right-4 top-4 rotate-12 rounded-lg border-4 border-rep-crimson bg-rose-50/90 px-3 py-1 font-brand text-xl font-bold uppercase text-rep-crimson"
               style={{ opacity: illegalHintOpacity }}
             >
-              Ilegal
+              {STRINGS.swipe.illegalStamp}
             </span>
           </article>
         </div>
@@ -279,7 +281,7 @@ export default function SwipeCardView({
               className="civic-btn flex min-h-[44px] items-center justify-center gap-2 rounded-xl border-2 border-rep-navy bg-rose-100 py-3.5 font-brand text-sm font-bold text-rep-crimson shadow-neo hover:bg-rose-200"
             >
               <span aria-hidden="true">✕</span>
-              Promessa ilegal
+              {STRINGS.swipe.illegalAction}
             </button>
             <button
               type="button"
@@ -287,7 +289,7 @@ export default function SwipeCardView({
               className="civic-btn flex min-h-[44px] items-center justify-center gap-2 rounded-xl border-2 border-rep-navy bg-emerald-100 py-3.5 font-brand text-sm font-bold text-rep-emerald-dark shadow-neo hover:bg-emerald-200"
             >
               <span aria-hidden="true">✓</span>
-              Legítimo
+              {STRINGS.swipe.legitimateAction}
             </button>
           </div>
         </footer>
@@ -315,12 +317,10 @@ export default function SwipeCardView({
                 <h2
                   className={`font-brand text-lg font-bold leading-tight ${isCorrect ? "text-rep-emerald-dark" : "text-rep-crimson"}`}
                 >
-                  {isCorrect ? "Fato checado!" : "Caiu na promessa!"}
+                  {isCorrect ? STRINGS.swipe.correctTitle : STRINGS.swipe.wrongTitle}
                 </h2>
                 <p className="text-sm font-bold text-rep-navy">
-                  {currentCard.isLegitimate
-                    ? "Promessa legítima: está dentro das competências do cargo."
-                    : "Promessa ilegal: invade a competência de outro poder ou esfera."}
+                  {currentCard.isLegitimate ? STRINGS.swipe.legitimateVerdict : STRINGS.swipe.illegalVerdict}
                 </p>
                 <p className="inline-block rounded-md bg-white/80 px-2 py-0.5 font-brand text-xs font-bold text-rep-navy ring-1 ring-rep-border">
                   📖 {currentCard.constitutionalArticle}
@@ -338,7 +338,7 @@ export default function SwipeCardView({
                   isCorrect ? "bg-rep-emerald-dark" : "bg-rep-crimson"
                 }`}
               >
-                {isLastCard ? "Ver Resultado" : "Próxima Carta →"}
+                {isLastCard ? STRINGS.common.seeResult : STRINGS.swipe.nextCard}
               </button>
             </div>
           </div>

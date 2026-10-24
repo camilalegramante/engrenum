@@ -4,6 +4,7 @@ import { useState } from "react";
 import JourneyPanel from "@/components/JourneyPanel";
 import LearningPathUnit from "@/components/LearningPathUnit";
 import { LEVELS } from "@/data/levels";
+import { STRINGS } from "@/data/strings";
 import { buildPath } from "@/lib/path";
 import type { Progress } from "@/lib/progress";
 import type { Level, QuizSession } from "@/types/quiz";
@@ -41,25 +42,25 @@ export default function Dashboard({
             aria-labelledby="swipe-mode-title"
             className="rounded-2xl border-2 border-rep-navy bg-rep-navy p-4 text-white shadow-neo-gold"
           >
-            <p className="font-brand text-[11px] font-bold uppercase tracking-wider text-rep-gold">Modo rápido</p>
+            <p className="font-brand text-[11px] font-bold uppercase tracking-wider text-rep-gold">{STRINGS.dashboard.swipeEyebrow}</p>
             <h2 id="swipe-mode-title" className="mt-1 font-brand text-base font-bold">
-              Fato ou Fake Eleitoral
+              {STRINGS.swipe.title}
             </h2>
             <p className="mt-1 text-xs leading-snug text-slate-300">
-              Promessas de campanha: legítimas ou inconstitucionais? Arraste a carta e descubra.
+              {STRINGS.dashboard.swipeDescription}
             </p>
             <button
               type="button"
               onClick={onStartSwipe}
               className="civic-btn mt-3 min-h-[44px] w-full rounded-xl border-2 border-rep-navy bg-rep-gold py-3 font-brand text-sm font-bold uppercase tracking-wider text-rep-navy"
             >
-              Avaliar promessas
+              {STRINGS.dashboard.swipeAction}
             </button>
           </section>
         </div>
 
         <div className="mx-auto w-full max-w-md space-y-12">
-          <h1 className="sr-only">Quem Manda Aqui? Trilha Federativa</h1>
+          <h1 className="sr-only">{STRINGS.dashboard.heading}</h1>
           {units.map((unit, i) => (
             <LearningPathUnit
               key={unit.level.id}
@@ -75,7 +76,7 @@ export default function Dashboard({
       </div>
 
       <p className="pb-[env(safe-area-inset-bottom)] pt-10 text-center text-xs text-rep-muted">
-        Conteúdo educativo baseado na Constituição Federal de 1988.
+        {STRINGS.dashboard.footer}
       </p>
     </main>
   );

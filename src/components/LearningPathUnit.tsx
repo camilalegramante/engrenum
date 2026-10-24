@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Mascot from "@/components/Mascot";
 import { CHEST_XP } from "@/data/levels";
+import { STRINGS } from "@/data/strings";
 import type { PathNode, PathNodeStatus, PathUnit, QuizSession } from "@/types/quiz";
 
 interface LearningPathUnitProps {
@@ -16,21 +17,12 @@ interface LearningPathUnitProps {
 const WINDING_OFFSETS = [0, 48, 76, 48, 0, -48, -76, -48];
 const GHOST_NODE_COUNT = 3;
 
-const STATUS_LABELS: Record<PathNodeStatus, string> = {
-  completed: "concluída",
-  current: "próxima etapa",
-  available: "disponível",
-  locked: "bloqueada",
-};
-
 const NODE_STYLES: Record<PathNodeStatus, string> = {
   completed: "border-rep-navy bg-rep-gold text-rep-navy shadow-neo",
   current: "border-rep-navy bg-rep-navy text-rep-gold shadow-neo-gold",
   available: "border-rep-gold bg-amber-50 text-rep-navy shadow-neo-gold",
   locked: "border-slate-300 bg-slate-200 text-slate-400 shadow-[4px_4px_0_0_#cbd5e1]",
 };
-
-const LOCKED_MESSAGE = "Complete as etapas anteriores para desbloquear.";
 
 function Icon({ children }: { children: ReactNode }) {
   return (
@@ -76,10 +68,6 @@ function NodeIcon({ node }: { node: PathNode }) {
   );
 }
 
-function pluralizeScenarios(count: number): string {
-  return `${count} ${count === 1 ? "cenário" : "cenários"}`;
-}
-
 function NodePopover({
   node,
   lessonNumber,
@@ -95,22 +83,22 @@ function NodePopover({
 }) {
   let subtitle = "";
   let actionLabel: string | null = null;
-  let message: string | null = node.status === "locked" ? LOCKED_MESSAGE : null;
+  let message: string | null = node.status === "locked" ? STRINGS.path.lockedMessage : null;
 
   if (node.kind === "chest") {
-    subtitle = `+${CHEST_XP} XP de bônus`;
-    if (node.status === "available") actionLabel = "Abrir baú";
-    if (node.status === "completed") message = "Você já abriu este baú.";
+    subtitle = STRINGS.path.chestBonus(CHEST_XP);
+    if (node.status === "available") actionLabel = STRINGS.path.openChest;
+    if (node.status === "completed") message = STRINGS.path.chestOpened;
   } else if (node.session) {
-    const scenarios = pluralizeScenarios(node.session.questions.length);
+    const scenarios = STRINGS.path.scenarios(node.session.questions.length);
     if (node.kind === "challenge") {
-      subtitle = `${scenarios} · libera o próximo nível`;
-      if (node.status === "current") actionLabel = "Encarar desafio";
-      if (node.status === "completed") actionLabel = "Refazer desafio";
+      subtitle = STRINGS.path.challengeSubtitle(scenarios);
+      if (node.status === "current") actionLabel = STRINGS.path.startChallenge;
+      if (node.status === "completed") actionLabel = STRINGS.path.redoChallenge;
     } else {
-      subtitle = `Lição ${lessonNumber} de ${lessonCount} · ${scenarios}`;
-      if (node.status === "current") actionLabel = "Começar";
-      if (node.status === "completed") actionLabel = "Jogar de novo";
+      subtitle = STRINGS.path.lessonSubtitle(lessonNumber, lessonCount, scenarios);
+      if (node.status === "current") actionLabel = STRINGS.path.startLesson;
+      if (node.status === "completed") actionLabel = STRINGS.path.replayLesson;
     }
   }
 
@@ -172,7 +160,7 @@ export default function LearningPathUnit({
           <p
             className={`font-brand text-[11px] font-bold uppercase tracking-widest ${isDimmed ? "text-slate-400" : "text-rep-gold"}`}
           >
-            Nível {unitNumber} · {level.sphereLabel}
+            {STRINGS.path.unitLabel(unitNumber, level.sphereLabel)}
           </p>
           <h2
             id={`unit-${level.id}`}
@@ -183,16 +171,16 @@ export default function LearningPathUnit({
           <p className={`mt-0.5 text-xs ${isDimmed ? "text-slate-400" : "text-slate-300"}`}>{level.subtitle}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {isCompleted && (
-              <span className="rounded bg-rep-emerald px-1.5 text-[10px] font-bold text-white">✓ CONCLUÍDO</span>
+              <span className="rounded bg-rep-emerald px-1.5 text-[10px] font-bold text-white">{STRINGS.path.levelCompleted}</span>
             )}
             {isComingSoon && (
-              <span className="rounded bg-slate-200 px-1.5 text-[10px] font-bold text-slate-500">EM BREVE</span>
+              <span className="rounded bg-slate-200 px-1.5 text-[10px] font-bold text-slate-500">{STRINGS.path.comingSoon}</span>
             )}
             {!isComingSoon && !isCompleted && (
               <span
                 className={`rounded px-1.5 text-[10px] font-bold ${isUnlocked ? "bg-white/10 text-rep-gold" : "bg-slate-200 text-slate-500"}`}
               >
-                {doneSteps}/{totalSteps} ETAPAS
+                {STRINGS.path.steps(doneSteps, totalSteps)}
               </span>
             )}
           </div>
@@ -251,7 +239,7 @@ export default function LearningPathUnit({
                     <button
                       type="button"
                       onClick={() => onSelectNode(isSelected ? null : node.id)}
-                      aria-label={`${node.title}: ${STATUS_LABELS[node.status]}`}
+                      aria-label={STRINGS.path.nodeLabel(node.title, STRINGS.path.status[node.status])}
                       aria-expanded={isSelected}
                       aria-controls={isSelected ? `popover-${node.id}` : undefined}
                       className={`civic-btn relative flex items-center justify-center rounded-full border-2 ${size} ${NODE_STYLES[node.status]}`}
@@ -263,7 +251,7 @@ export default function LearningPathUnit({
                           className="absolute -top-7 left-1/2 z-10 animate-bob whitespace-nowrap rounded-lg border-2 border-rep-navy bg-white px-2.5 py-0.5 font-brand text-xs font-bold uppercase tracking-wider text-rep-navy shadow-neo"
                           aria-hidden="true"
                         >
-                          Jogar
+                          {STRINGS.path.play}
                         </span>
                       )}
                     </button>

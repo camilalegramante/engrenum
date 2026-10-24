@@ -1,3 +1,5 @@
+import { STRINGS } from "@/data/strings";
+
 interface HudHeaderProps {
   xp: number;
   streak: number;
@@ -33,8 +35,8 @@ export default function HudHeader({
               type="button"
               onClick={onBack}
               className="-ml-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-rep-navy transition hover:bg-slate-100"
-              aria-label="Voltar ao mapa"
-              title="Voltar ao mapa"
+              aria-label={STRINGS.hud.back}
+              title={STRINGS.hud.back}
             >
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -48,7 +50,7 @@ export default function HudHeader({
           <span
             className={`font-brand text-sm font-bold uppercase tracking-wider text-rep-navy ${onBack ? "hidden sm:inline-block" : ""}`}
           >
-            Engrenum
+            {STRINGS.app.name}
           </span>
         </div>
 
@@ -56,7 +58,7 @@ export default function HudHeader({
           <div
             className="h-2.5 max-w-xs flex-1 overflow-hidden rounded-full border border-rep-border bg-slate-100"
             role="progressbar"
-            aria-label="Progresso do nível"
+            aria-label={STRINGS.hud.progress}
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.round(progressPercent)}
@@ -70,9 +72,9 @@ export default function HudHeader({
             type="button"
             onClick={onToggleSound}
             className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-rep-slate transition hover:bg-slate-100"
-            aria-label={isSoundEnabled ? "Desativar som" : "Ativar som"}
+            aria-label={isSoundEnabled ? STRINGS.hud.disableSound : STRINGS.hud.enableSound}
             aria-pressed={isSoundEnabled}
-            title="Alternar som"
+            title={STRINGS.hud.toggleSound}
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-rep-border">
               {isSoundEnabled ? (
@@ -100,30 +102,30 @@ export default function HudHeader({
           {/* During a lesson on small screens, the streak gives its room to the progress bar */}
           <div
             className={`items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-amber-800 ${isInLesson ? "hidden sm:flex" : "flex"}`}
-            title="Dias seguidos de foco cívico"
+            title={STRINGS.hud.streakTitle}
           >
             <span aria-hidden="true">🔥</span>
             <span className="font-brand">{streak}</span>
-            <span className="sr-only">dias seguidos</span>
+            <span className="sr-only">{STRINGS.hud.streakUnit}</span>
           </div>
 
           <div
             className="flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-rep-emerald-dark"
-            title="Pontos de cidadania (XP)"
+            title={STRINGS.hud.xpTitle}
           >
             <span aria-hidden="true">🏛️</span>
             <span className="font-brand">{xp}</span>
-            <span className="sr-only">pontos de XP</span>
+            <span className="sr-only">{STRINGS.hud.xpUnit}</span>
           </div>
 
           {lives !== undefined && (
             <div
               className="flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2 py-1 text-rep-crimson"
-              title="Fichas de credibilidade (vidas)"
+              title={STRINGS.hud.livesTitle}
             >
               <span aria-hidden="true">⚖️</span>
               <span className="font-brand">{lives}</span>
-              <span className="sr-only">vidas restantes</span>
+              <span className="sr-only">{STRINGS.hud.livesUnit}</span>
             </div>
           )}
         </div>

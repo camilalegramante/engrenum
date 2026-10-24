@@ -7,6 +7,7 @@ import HudHeader from "@/components/HudHeader";
 import Mascot from "@/components/Mascot";
 import SwipeCardView from "@/components/SwipeCardView";
 import { CHEST_XP, XP_PER_CORRECT_ANSWER } from "@/data/levels";
+import { STRINGS } from "@/data/strings";
 import { registerChestOpening, registerSessionCompletion, updateProgress, useProgress } from "@/lib/progress";
 import { playSound } from "@/lib/sound";
 import type { QuizSession } from "@/types/quiz";
@@ -104,10 +105,11 @@ export default function EngrenumApp() {
             <Mascot className="mx-auto h-32 w-28" />
             <div>
               <h2 id="chest-title" className="font-brand text-xl font-bold text-rep-navy">
-                Baú aberto!
+                {STRINGS.chest.title}
               </h2>
               <p className="mt-1 text-sm text-rep-muted">
-                Você ganhou <strong className="text-rep-navy">+{chestReward} XP</strong> de bônus pela dedicação.
+                {STRINGS.chest.rewardBefore} <strong className="text-rep-navy">{STRINGS.chest.reward(chestReward)}</strong>{" "}
+                {STRINGS.chest.rewardAfter}
               </p>
             </div>
             <button
@@ -116,7 +118,7 @@ export default function EngrenumApp() {
               autoFocus
               className="civic-btn min-h-[44px] w-full rounded-xl border-2 border-rep-navy bg-rep-gold py-3.5 font-brand text-sm font-bold uppercase tracking-wider text-rep-navy shadow-neo"
             >
-              Oba!
+              {STRINGS.chest.confirm}
             </button>
           </div>
         </div>

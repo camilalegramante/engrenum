@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { LEVELS } from "@/data/levels";
+import { STRINGS } from "@/data/strings";
 import type { Level, PathNodeStatus } from "@/types/quiz";
 import { buildPath, getChallengeId, getChestId, type PathProgress } from "./path";
 
@@ -79,7 +80,7 @@ describe("buildPath", () => {
     expect(municipal.nodes.at(-1)?.session).toMatchObject({
       id: getChallengeId("municipal"),
       kind: "challenge",
-      title: "Desafio final: No Meu Bairro",
+      title: STRINGS.path.challengeSessionTitle("No Meu Bairro"),
     });
     expect(municipal.nodes.at(-1)?.session?.questions).toHaveLength(10);
     expect(municipal.nodes[2].session).toBeUndefined();

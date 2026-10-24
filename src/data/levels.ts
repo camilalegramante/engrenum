@@ -1,5 +1,6 @@
 import type { CivicTitle, Lesson, Level, Question, Rank, RankProgress } from "@/types/quiz";
 import questionsData from "./questions.json";
+import { STRINGS } from "./strings";
 
 export const INITIAL_LIVES = 3;
 export const XP_PER_CORRECT_ANSWER = 15;
@@ -27,7 +28,7 @@ export function chunkIntoLessons(levelId: string, levelQuestions: Question[], si
     const number = lessons.length + 1;
     lessons.push({
       id: `${levelId}-${number}`,
-      title: `Lição ${number}`,
+      title: STRINGS.path.fallbackLessonTitle(number),
       questions: levelQuestions.slice(start, start + size),
     });
   }

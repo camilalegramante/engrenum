@@ -1,3 +1,4 @@
+import { STRINGS } from "@/data/strings";
 import type { Level, PathNode, PathUnit, QuizSession } from "@/types/quiz";
 
 export interface PathProgress {
@@ -42,7 +43,7 @@ export function buildPath(levels: Level[], progress: PathProgress): PathUnit[] {
         nodes.push({
           id: chestId,
           kind: "chest",
-          title: "Baú de recompensa",
+          title: STRINGS.path.chestTitle,
           status: isOpened ? "completed" : isPreviousDone ? "available" : "locked",
         });
       }
@@ -66,12 +67,12 @@ export function buildPath(levels: Level[], progress: PathProgress): PathUnit[] {
         {
           id: challengeId,
           kind: "challenge",
-          title: "Desafio final",
+          title: STRINGS.path.challengeTitle,
           session: {
             id: challengeId,
             kind: "challenge",
             levelId: level.id,
-            title: `Desafio final: ${level.title}`,
+            title: STRINGS.path.challengeSessionTitle(level.title),
             questions: level.questions,
           },
         },

@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { STRINGS } from "@/data/strings";
 import manifest from "./manifest";
 
 describe("PWA manifest", () => {
   it("is installable as a standalone pt-BR app", () => {
     expect(manifest()).toMatchObject({
-      name: "Engrenum",
+      name: STRINGS.app.name,
       start_url: "/",
       display: "standalone",
       lang: "pt-BR",
