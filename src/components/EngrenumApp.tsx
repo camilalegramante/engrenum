@@ -5,6 +5,7 @@ import Dashboard from "@/components/Dashboard";
 import EngrenumQuiz from "@/components/EngrenumQuiz";
 import HudHeader from "@/components/HudHeader";
 import Mascot from "@/components/Mascot";
+import SwipeCardView from "@/components/SwipeCardView";
 import { CHEST_XP, XP_PER_CORRECT_ANSWER } from "@/data/levels";
 import { registerChestOpening, registerSessionCompletion, updateProgress, useProgress } from "@/lib/progress";
 import { playSound } from "@/lib/sound";
@@ -14,6 +15,7 @@ export default function EngrenumApp() {
   const progress = useProgress();
   const [activeSession, setActiveSession] = useState<QuizSession | null>(null);
   const [chestReward, setChestReward] = useState<number | null>(null);
+  const [isSwipeActive, setIsSwipeActive] = useState(false);
 
   function handleToggleSound() {
     const isEnabled = !progress.isSoundEnabled;
@@ -31,6 +33,15 @@ export default function EngrenumApp() {
     setActiveSession(null);
   }
 
+  function handleToggleSwipe(isActive: boolean) {
+    playSound("tap", progress.isSoundEnabled);
+    setIsSwipeActive(isActive);
+  }
+
+  function handleAwardCorrectAnswer() {
+    updateProgress((p) => ({ ...p, xp: p.xp + XP_PER_CORRECT_ANSWER }));
+  }
+
   function handleOpenChest(chestId: string) {
     playSound("correct", progress.isSoundEnabled);
     updateProgress((p) => registerChestOpening(p, chestId, CHEST_XP));
@@ -46,9 +57,22 @@ export default function EngrenumApp() {
         streak={progress.streak}
         isSoundEnabled={progress.isSoundEnabled}
         onToggleSound={handleToggleSound}
-        onCorrectAnswer={() => updateProgress((p) => ({ ...p, xp: p.xp + XP_PER_CORRECT_ANSWER }))}
+        onCorrectAnswer={handleAwardCorrectAnswer}
         onComplete={() => updateProgress((p) => registerSessionCompletion(p, activeSession))}
         onExit={handleExitSession}
+      />
+    );
+  }
+
+  if (isSwipeActive) {
+    return (
+      <SwipeCardView
+        xp={progress.xp}
+        streak={progress.streak}
+        isSoundEnabled={progress.isSoundEnabled}
+        onToggleSound={handleToggleSound}
+        onCorrectAnswer={handleAwardCorrectAnswer}
+        onExit={() => handleToggleSwipe(false)}
       />
     );
   }
@@ -62,7 +86,12 @@ export default function EngrenumApp() {
         onToggleSound={handleToggleSound}
         isWide
       />
-      <Dashboard progress={progress} onStartSession={handleStartSession} onOpenChest={handleOpenChest} />
+      <Dashboard
+        progress={progress}
+        onStartSession={handleStartSession}
+        onOpenChest={handleOpenChest}
+        onStartSwipe={() => handleToggleSwipe(true)}
+      />
 
       {chestReward !== null && (
         <div

@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "speakerRole": "Candidato a Vereador",
+    "statement": "Se eleito, vou mudar o Código Penal para aumentar a pena de quem furtar celular aqui na cidade.",
+    "isLegitimate": false,
+    "constitutionalArticle": "Art. 22, I da CF/88",
+    "explanation": "Legislar sobre direito penal é competência privativa da União: só o Congresso Nacional altera o Código Penal, e a regra vale para o país inteiro. A Câmara Municipal não cria crimes nem muda penas."
+  },
+  {
+    "id": 2,
+    "speakerRole": "Candidata a Vereadora",
+    "statement": "Vou fiscalizar os contratos da prefeitura e chamar o secretário para explicar gastos suspeitos.",
+    "isLegitimate": true,
+    "constitutionalArticle": "Art. 31 da CF/88",
+    "explanation": "Fiscalizar o Executivo é uma das funções centrais do vereador. A fiscalização do Município é exercida pela Câmara Municipal, com controle externo e apoio do Tribunal de Contas."
+  },
+  {
+    "id": 3,
+    "speakerRole": "Candidato a Governador",
+    "statement": "Vou assumir a gestão do posto de saúde do seu bairro e trocar toda a equipe de atendimento.",
+    "isLegitimate": false,
+    "constitutionalArticle": "Art. 30, VII da CF/88",
+    "explanation": "O atendimento básico de saúde, como o dos postos de bairro, é prestado pelo Município. O Estado coopera com recursos técnicos e financeiros, mas o Governador não administra a unidade nem comanda a equipe da prefeitura."
+  },
+  {
+    "id": 4,
+    "speakerRole": "Candidato a Governador",
+    "statement": "Vou contratar mais policiais militares e reforçar o patrulhamento nas ruas das cidades do estado.",
+    "isLegitimate": true,
+    "constitutionalArticle": "Art. 144, §§ 5º e 6º da CF/88",
+    "explanation": "A Polícia Militar faz o policiamento ostensivo e é subordinada ao Governador. Ampliar o efetivo, por concurso público e dentro do orçamento, é uma promessa que cabe ao cargo."
+  },
+  {
+    "id": 5,
+    "speakerRole": "Candidata a Prefeita",
+    "statement": "Vou criar uma moeda própria da cidade para substituir o real nas compras do comércio local.",
+    "isLegitimate": false,
+    "constitutionalArticle": "Art. 21, VII e Art. 164 da CF/88",
+    "explanation": "Emitir moeda é competência exclusiva da União, exercida pelo Banco Central. Algumas cidades têm moedas sociais complementares, usadas em programas locais, mas nenhuma pode substituir o real."
+  },
+  {
+    "id": 6,
+    "speakerRole": "Candidato a Prefeito",
+    "statement": "Vou abrir mais vagas em creches e na pré-escola para zerar a fila de espera da cidade.",
+    "isLegitimate": true,
+    "constitutionalArticle": "Art. 30, VI e Art. 211, § 2º da CF/88",
+    "explanation": "A educação infantil (creche e pré-escola) é responsabilidade prioritária dos Municípios, com apoio técnico e financeiro da União e do Estado. Ampliar vagas é uma promessa típica de Prefeito."
+  },
+  {
+    "id": 7,
+    "speakerRole": "Candidata a Deputada Estadual",
+    "statement": "Vou aprovar uma lei estadual que libera motos pequenas de exigir carteira de habilitação.",
+    "isLegitimate": false,
+    "constitutionalArticle": "Art. 22, XI da CF/88",
+    "explanation": "Trânsito e transporte são assuntos de competência privativa da União. As regras de habilitação estão no Código de Trânsito Brasileiro, e só o Congresso Nacional pode mudá-las. Uma lei estadual nesse sentido seria inconstitucional."
+  },
+  {
+    "id": 8,
+    "speakerRole": "Candidato a Deputado Federal",
+    "statement": "Vou apresentar um projeto de lei para endurecer as penas de quem comete crimes ambientais.",
+    "isLegitimate": true,
+    "constitutionalArticle": "Art. 22, I e Art. 61 da CF/88",
+    "explanation": "Direito penal é competência da União, e qualquer deputado federal pode apresentar projetos de lei na Câmara dos Deputados. A promessa é viável, mas depende da aprovação do Congresso e da sanção presidencial."
+  }
+]

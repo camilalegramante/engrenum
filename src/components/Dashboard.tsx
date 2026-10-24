@@ -12,10 +12,17 @@ interface DashboardProps {
   progress: Progress;
   onStartSession: (session: QuizSession) => void;
   onOpenChest: (chestId: string) => void;
+  onStartSwipe: () => void;
   levels?: Level[];
 }
 
-export default function Dashboard({ progress, onStartSession, onOpenChest, levels = LEVELS }: DashboardProps) {
+export default function Dashboard({
+  progress,
+  onStartSession,
+  onOpenChest,
+  onStartSwipe,
+  levels = LEVELS,
+}: DashboardProps) {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const units = buildPath(levels, progress);
 
@@ -27,7 +34,29 @@ export default function Dashboard({ progress, onStartSession, onOpenChest, level
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-        <JourneyPanel progress={progress} className="lg:sticky lg:top-24 lg:order-last" />
+        <div className="space-y-3 lg:sticky lg:top-24 lg:order-last lg:space-y-4">
+          <JourneyPanel progress={progress} />
+
+          <section
+            aria-labelledby="swipe-mode-title"
+            className="rounded-2xl border-2 border-rep-navy bg-rep-navy p-4 text-white shadow-neo-gold"
+          >
+            <p className="font-brand text-[11px] font-bold uppercase tracking-wider text-rep-gold">Modo rápido</p>
+            <h2 id="swipe-mode-title" className="mt-1 font-brand text-base font-bold">
+              Fato ou Fake Eleitoral
+            </h2>
+            <p className="mt-1 text-xs leading-snug text-slate-300">
+              Promessas de campanha: legítimas ou inconstitucionais? Arraste a carta e descubra.
+            </p>
+            <button
+              type="button"
+              onClick={onStartSwipe}
+              className="civic-btn mt-3 min-h-[44px] w-full rounded-xl border-2 border-rep-navy bg-rep-gold py-3 font-brand text-sm font-bold uppercase tracking-wider text-rep-navy"
+            >
+              Avaliar promessas
+            </button>
+          </section>
+        </div>
 
         <div className="mx-auto w-full max-w-md space-y-12">
           <h1 className="sr-only">Quem Manda Aqui? Trilha Federativa</h1>

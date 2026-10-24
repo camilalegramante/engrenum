@@ -51,16 +51,19 @@ engrenum/
 │   │   ├── JourneyPanel.tsx     # civic rank progress + daily mission cards
 │   │   ├── Mascot.tsx           # capybara mascot (waving WebP / sleepy grayscale still)
 │   │   ├── HudHeader.tsx        # sticky HUD: back, progress bar, sound, streak, XP, lives
-│   │   └── EngrenumQuiz.tsx     # game engine for one QuizSession (lesson or challenge)
+│   │   ├── EngrenumQuiz.tsx     # game engine for one QuizSession (lesson or challenge)
+│   │   └── SwipeCardView.tsx    # "Fato ou Fake Eleitoral": swipe campaign promises left (illegal) / right (legitimate)
 │   ├── data/
 │   │   ├── levels.ts            # LEVELS + themed lessons, constants, rank/civic-title helpers
-│   │   └── questions.json
+│   │   ├── questions.json
+│   │   └── swipeCards.json      # SwipeCard deck for "Fato ou Fake Eleitoral"
 │   ├── lib/
 │   │   ├── path.ts              # buildPath(): levels + progress → path units/nodes with status
 │   │   ├── progress.ts          # localStorage-backed progress store
 │   │   └── sound.ts             # Web Audio API sound effects
 │   └── types/
-│       └── quiz.ts
+│       ├── quiz.ts
+│       └── swipe.ts             # SwipeCard, SwipeFeedback
 │
 │   (tests are colocated: every module has a sibling `*.test.ts(x)`)
 ├── design/

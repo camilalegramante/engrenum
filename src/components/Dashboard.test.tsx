@@ -7,7 +7,7 @@ import type { Level } from "@/types/quiz";
 import Dashboard from "./Dashboard";
 
 function renderDashboard(progress: Partial<Progress> = {}, levels?: Level[]) {
-  const props = { onStartSession: vi.fn(), onOpenChest: vi.fn() };
+  const props = { onStartSession: vi.fn(), onOpenChest: vi.fn(), onStartSwipe: vi.fn() };
   render(<Dashboard progress={{ ...INITIAL_PROGRESS, ...progress }} levels={levels} {...props} />);
   return props;
 }
@@ -25,6 +25,13 @@ describe("Dashboard", () => {
     expect(within(municipal).getByText("Nível 1 · Municipal")).toBeVisible();
     expect(within(municipal).getByText("0/5 ETAPAS")).toBeVisible();
     expect(screen.getByRole("region", { name: "Ordem e Região" })).toHaveTextContent("EM BREVE");
+  });
+
+  it("offers the Fato ou Fake Eleitoral quick mode", async () => {
+    const { onStartSwipe } = renderDashboard();
+    const section = screen.getByRole("region", { name: "Fato ou Fake Eleitoral" });
+    await userEvent.click(within(section).getByRole("button", { name: "Avaliar promessas" }));
+    expect(onStartSwipe).toHaveBeenCalledOnce();
   });
 
   it("highlights the next step with a 'Jogar' callout and the mascot tip", () => {

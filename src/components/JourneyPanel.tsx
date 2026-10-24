@@ -3,15 +3,14 @@ import { hasPlayedToday, type Progress } from "@/lib/progress";
 
 interface JourneyPanelProps {
   progress: Progress;
-  className?: string;
 }
 
-export default function JourneyPanel({ progress, className = "" }: JourneyPanelProps) {
+export default function JourneyPanel({ progress }: JourneyPanelProps) {
   const rank = getRankProgress(progress.xp);
   const isMissionDone = hasPlayedToday(progress);
 
   return (
-    <aside aria-label="Sua jornada" className={`grid grid-cols-2 gap-3 lg:grid-cols-1 lg:gap-4 ${className}`}>
+    <aside aria-label="Sua jornada" className="grid grid-cols-2 gap-3 lg:grid-cols-1 lg:gap-4">
       <section className="rounded-2xl border-2 border-rep-navy bg-white p-4 shadow-neo">
         <div className="flex items-center gap-2">
           <span

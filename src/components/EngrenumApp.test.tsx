@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LEVELS } from "@/data/levels";
+import swipeCards from "@/data/swipeCards.json";
 import type { Question } from "@/types/quiz";
 
 vi.mock("@/lib/sound", () => ({ playSound: vi.fn() }));
@@ -58,6 +59,19 @@ describe("EngrenumApp", () => {
     await userEvent.click(screen.getByRole("button", { name: "Voltar à Trilha" }));
     expect(screen.getByRole("button", { name: "Serviços do bairro: concluída" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Saúde, escola e calçada: próxima etapa" })).toBeVisible();
+  });
+
+  it("plays Fato ou Fake Eleitoral, awards XP and returns to the path", async () => {
+    await renderApp();
+    await userEvent.click(screen.getByRole("button", { name: "Avaliar promessas" }));
+    expect(screen.getByRole("heading", { name: "Fato ou Fake Eleitoral" })).toBeVisible();
+
+    await userEvent.click(screen.getByRole("button", { name: swipeCards[0].isLegitimate ? "Legítimo" : "Promessa ilegal" }));
+    expect(screen.getByRole("status")).toHaveTextContent(swipeCards[0].constitutionalArticle);
+    expect(storedProgress()).toMatchObject({ xp: 15 });
+
+    await userEvent.click(screen.getByRole("button", { name: "Voltar ao mapa" }));
+    expect(screen.getByRole("region", { name: "No Meu Bairro" })).toBeVisible();
   });
 
   it("leaves a lesson midway and returns to the path", async () => {
