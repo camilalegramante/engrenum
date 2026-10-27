@@ -112,7 +112,7 @@ function NodePopover({
   return (
     <div
       id={`popover-${node.id}`}
-      className={`mt-3 w-full max-w-xs rounded-2xl border-2 p-4 text-left shadow-neo ${
+      className={`absolute left-1/2 top-full z-20 mt-3 w-full max-w-xs -translate-x-1/2 rounded-2xl border-2 p-4 text-left shadow-neo ${
         isActive ? "border-rep-navy bg-white" : "border-slate-300 bg-slate-50"
       }`}
     >
@@ -145,6 +145,7 @@ export default function LearningPathUnit({
   const isMascotOnLeft = unitNumber % 2 === 1;
   const direction = isMascotOnLeft ? 1 : -1;
   const lessonNodes = nodes.filter((node) => node.kind === "lesson");
+  const isNodeSelected = nodes.some((node) => node.id === selectedNodeId);
   const doneSteps = nodes.filter((node) => node.kind !== "chest" && node.status === "completed").length;
   const totalSteps = nodes.filter((node) => node.kind !== "chest").length;
   const isDimmed = isComingSoon || !isUnlocked;
@@ -195,12 +196,14 @@ export default function LearningPathUnit({
         </span>
       </header>
 
-      <div className="relative">
+      {/* Top padding gives the "Jogar" callout room below the level banner; the mascot moves down with it */}
+      <div className="relative pt-8">
         <div
-          className={`pointer-events-none absolute top-16 flex w-28 flex-col items-center gap-1 ${isMascotOnLeft ? "left-0" : "right-0"}`}
+          className={`pointer-events-none absolute top-24 flex w-28 flex-col items-center gap-1 ${isMascotOnLeft ? "left-0" : "right-0"}`}
         >
+          {/* While a step's card is open the tip is hidden but keeps its space, so the mascot doesn't move */}
           {!isComingSoon && (
-            <p className="rounded-xl border-2 border-rep-navy bg-white px-2 py-1.5 text-center text-[11px] font-semibold leading-snug text-rep-navy shadow-neo">
+            <p className={`${isNodeSelected ? "invisible" : ""} rounded-xl border-2 border-rep-navy bg-white px-2 py-1.5 text-center text-[11px] font-semibold leading-snug text-rep-navy shadow-neo`}>
               {level.mascotTip}
             </p>
           )}
@@ -225,16 +228,26 @@ export default function LearningPathUnit({
               const lessonNumber = lessonNodes.indexOf(node) + 1;
               const size = node.kind === "challenge" ? "h-20 w-20" : "h-[72px] w-[72px]";
               return (
-                <li key={node.id} className="flex w-full flex-col items-center">
+                // The popover floats over the path (absolute), so opening it never shifts the nodes
+                <li key={node.id} className="relative flex w-full flex-col items-center">
                   <div
                     className="relative"
                     style={{ transform: `translateX(${WINDING_OFFSETS[i % WINDING_OFFSETS.length] * direction}px)` }}
                   >
                     {node.status === "current" && (
-                      <span
-                        className="pointer-events-none absolute inset-0 animate-pulse-ring rounded-full"
-                        aria-hidden="true"
-                      />
+                      <>
+                        <span
+                          className="pointer-events-none absolute inset-0 animate-pulse-ring rounded-full"
+                          aria-hidden="true"
+                        />
+                        {/* Just a hint: the node itself is the button */}
+                        <span
+                          className="pointer-events-none absolute -top-7 left-1/2 z-10 animate-bob whitespace-nowrap rounded-lg border-2 border-rep-navy bg-white px-2.5 py-0.5 font-brand text-xs font-bold uppercase tracking-wider text-rep-navy shadow-neo"
+                          aria-hidden="true"
+                        >
+                          {STRINGS.path.play}
+                        </span>
+                      </>
                     )}
                     <button
                       type="button"
@@ -245,15 +258,6 @@ export default function LearningPathUnit({
                       className={`civic-btn relative flex items-center justify-center rounded-full border-2 ${size} ${NODE_STYLES[node.status]}`}
                     >
                       <NodeIcon node={node} />
-                      {/* Inside the button so the callout is clickable too */}
-                      {node.status === "current" && (
-                        <span
-                          className="absolute -top-7 left-1/2 z-10 animate-bob whitespace-nowrap rounded-lg border-2 border-rep-navy bg-white px-2.5 py-0.5 font-brand text-xs font-bold uppercase tracking-wider text-rep-navy shadow-neo"
-                          aria-hidden="true"
-                        >
-                          {STRINGS.path.play}
-                        </span>
-                      )}
                     </button>
                   </div>
                   {isSelected && (
