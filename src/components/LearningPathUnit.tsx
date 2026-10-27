@@ -20,7 +20,6 @@ const GHOST_NODE_COUNT = 3;
 const NODE_STYLES: Record<PathNodeStatus, string> = {
   completed: "border-rep-navy bg-rep-gold text-rep-navy shadow-neo",
   current: "border-rep-navy bg-rep-navy text-rep-gold shadow-neo-gold",
-  available: "border-rep-gold bg-amber-50 text-rep-navy shadow-neo-gold",
   locked: "border-slate-300 bg-slate-200 text-slate-400 shadow-[4px_4px_0_0_#cbd5e1]",
 };
 
@@ -72,22 +71,26 @@ function NodePopover({
   node,
   lessonNumber,
   lessonCount,
+  isBlockedByChest,
   onStartSession,
   onOpenChest,
 }: {
   node: PathNode;
   lessonNumber: number;
   lessonCount: number;
+  /** Locked only because the chest right before it is still closed. */
+  isBlockedByChest: boolean;
   onStartSession: (session: QuizSession) => void;
   onOpenChest: (chestId: string) => void;
 }) {
   let subtitle = "";
   let actionLabel: string | null = null;
-  let message: string | null = node.status === "locked" ? STRINGS.path.lockedMessage : null;
+  let message: string | null = null;
+  if (node.status === "locked") message = isBlockedByChest ? STRINGS.path.lockedByChestMessage : STRINGS.path.lockedMessage;
 
   if (node.kind === "chest") {
     subtitle = STRINGS.path.chestBonus(CHEST_XP);
-    if (node.status === "available") actionLabel = STRINGS.path.openChest;
+    if (node.status === "current") actionLabel = STRINGS.path.openChest;
     if (node.status === "completed") message = STRINGS.path.chestOpened;
   } else if (node.session) {
     const stepCount = STRINGS.path.stepCount(node.session.steps.length);
@@ -245,7 +248,7 @@ export default function LearningPathUnit({
                           className="pointer-events-none absolute -top-7 left-1/2 z-10 animate-bob whitespace-nowrap rounded-lg border-2 border-rep-navy bg-white px-2.5 py-0.5 font-brand text-xs font-bold uppercase tracking-wider text-rep-navy shadow-neo"
                           aria-hidden="true"
                         >
-                          {STRINGS.path.play}
+                          {node.kind === "chest" ? STRINGS.path.open : STRINGS.path.play}
                         </span>
                       </>
                     )}
@@ -265,6 +268,7 @@ export default function LearningPathUnit({
                       node={node}
                       lessonNumber={lessonNumber}
                       lessonCount={lessonNodes.length}
+                      isBlockedByChest={nodes[i - 1]?.kind === "chest" && nodes[i - 1].status === "current"}
                       onStartSession={onStartSession}
                       onOpenChest={onOpenChest}
                     />

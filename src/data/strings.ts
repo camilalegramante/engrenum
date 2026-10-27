@@ -92,7 +92,6 @@ export const STRINGS = {
     status: {
       completed: "concluída",
       current: "próxima etapa",
-      available: "disponível",
       locked: "bloqueada",
     },
     nodeLabel: (title: string, status: string) => `${title}: ${status}`,
@@ -101,8 +100,10 @@ export const STRINGS = {
     comingSoon: "EM BREVE",
     steps: (done: number, total: number) => `${done}/${total} ETAPAS`,
     play: "Jogar",
+    open: "Abrir",
     fallbackLessonTitle: (lessonNumber: number) => `Lição ${lessonNumber}`,
     lockedMessage: "Complete as etapas anteriores para desbloquear.",
+    lockedByChestMessage: "Abra o baú de recompensa para liberar esta etapa.",
     stepCount: (count: number) => pluralize(count, "desafio", "desafios"),
     chestBonus: (xp: number) => `+${xp} XP de bônus`,
     chestOpened: "Você já abriu este baú.",

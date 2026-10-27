@@ -155,12 +155,11 @@ export interface QuizSession {
 export type PathNodeKind = "lesson" | "chest" | "challenge";
 
 /**
- * completed: done (lessons and challenges stay replayable);
- * current: the next step to play;
- * available: unlocked side reward (an unopened chest);
+ * completed: done (lessons and challenges stay replayable; chests stay opened);
+ * current: the next step to play (or the chest to open);
  * locked: previous steps are still pending.
  */
-export type PathNodeStatus = "completed" | "current" | "available" | "locked";
+export type PathNodeStatus = "completed" | "current" | "locked";
 
 export interface PathNode {
   id: string;
@@ -254,7 +253,7 @@ Inspired by language-learning apps (a winding path of steps, a mascot, rewards),
 - **One unit per level** (`LearningPathUnit.tsx`): a banner ("Nível N · Sphere", title, subtitle, `done/total ETAPAS`, "✓ CONCLUÍDO" or "EM BREVE"), then a **winding path** of round nodes, plus the **capybara mascot** (`Mascot.tsx`) beside it with the level's `mascotTip`. The mascot alternates sides per unit and the path winds away from it.
 - **Path order per level** (`buildPath` in `src/lib/path.ts`): lessons in order → a **reward chest** after the 2nd lesson → the **Desafio final** (every step of every lesson, so it mixes mechanics too).
   - Lessons and the challenge are sequential: each unlocks when the previous one is completed. The first not-done step is `current` (navy node, pulse ring and a bobbing "JOGAR" callout).
-  - The chest is a side reward: `available` once the lesson before it is done, it never blocks the next lesson, and opening it grants `CHEST_XP` (+20) once.
+  - The chest is a mandatory step: once the lesson before it is done it becomes `current` (callout "Abrir"), the lessons after it stay locked until it is opened ("Abra o baú…"), and opening it grants `CHEST_XP` (+20) once.
   - Completing the **Desafio final** completes the level (`completedLevelIds`), counts all its lessons as done, and unlocks the next level.
   - Levels without questions are "EM BREVE": dashed ghost nodes and a napping, grayscale capybara.
 - **Node popover:** tapping a node toggles a card below it with title, details ("Lição 2 de 4 · 5 desafios") and the action ("Começar", "Jogar de novo", "Encarar desafio", "Refazer desafio", "Abrir baú"); locked nodes explain how to unlock.

@@ -21,6 +21,7 @@ export function getChallengeId(levelId: string): string {
 /**
  * Turns levels + progress into the learning path: lessons in order, a reward chest
  * after the second lesson and the final challenge, which unlocks the next level.
+ * Every step is sequential: the chest must be opened before the lessons after it.
  */
 export function buildPath(levels: Level[], progress: PathProgress): PathUnit[] {
   return levels.map((level, i) => {
@@ -37,15 +38,11 @@ export function buildPath(levels: Level[], progress: PathProgress): PathUnit[] {
 
     level.lessons.forEach((lesson, index) => {
       if (index === LESSONS_BEFORE_CHEST) {
-        // The chest is a side reward: it never blocks the lessons after it.
         const chestId = getChestId(level.id);
-        const isOpened = progress.openedChestIds.includes(chestId);
-        nodes.push({
-          id: chestId,
-          kind: "chest",
-          title: STRINGS.path.chestTitle,
-          status: isOpened ? "completed" : isPreviousDone ? "available" : "locked",
-        });
+        pushSequentialNode(
+          { id: chestId, kind: "chest", title: STRINGS.path.chestTitle },
+          progress.openedChestIds.includes(chestId),
+        );
       }
       const session: QuizSession = {
         id: lesson.id,

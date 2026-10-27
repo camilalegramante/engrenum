@@ -64,12 +64,11 @@ export interface QuizSession {
 export type PathNodeKind = "lesson" | "chest" | "challenge";
 
 /**
- * completed: done (lessons and challenges stay replayable);
- * current: the next step to play;
- * available: unlocked side reward (an unopened chest);
+ * completed: done (lessons and challenges stay replayable; chests stay opened);
+ * current: the next step to play (or the chest to open);
  * locked: previous steps are still pending.
  */
-export type PathNodeStatus = "completed" | "current" | "available" | "locked";
+export type PathNodeStatus = "completed" | "current" | "locked";
 
 export interface PathNode {
   id: string;

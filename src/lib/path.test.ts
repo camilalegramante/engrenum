@@ -34,25 +34,28 @@ describe("buildPath", () => {
     ]);
   });
 
-  it("opens the chest as a side reward without blocking the next lesson", () => {
+  it("makes the closed chest the next step and locks the lessons after it", () => {
     const progress = { ...NO_PROGRESS, completedLessonIds: ["municipal-1", "municipal-2"] };
     expect(statuses(LEVELS, progress)).toEqual([
       ["municipal-1", "completed"],
       ["municipal-2", "completed"],
-      ["municipal-chest", "available"],
-      ["municipal-3", "current"],
+      ["municipal-chest", "current"],
+      ["municipal-3", "locked"],
       ["municipal-4", "locked"],
       ["municipal-challenge", "locked"],
     ]);
   });
 
-  it("marks an opened chest as completed", () => {
+  it("unlocks the next lesson once the chest is opened", () => {
     const progress = {
       ...NO_PROGRESS,
       completedLessonIds: ["municipal-1", "municipal-2"],
       openedChestIds: [getChestId("municipal")],
     };
-    expect(statuses(LEVELS, progress)[2]).toEqual(["municipal-chest", "completed"]);
+    expect(statuses(LEVELS, progress).slice(2, 4)).toEqual([
+      ["municipal-chest", "completed"],
+      ["municipal-3", "current"],
+    ]);
   });
 
   it("unlocks the final challenge after the last lesson", () => {

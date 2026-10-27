@@ -191,9 +191,25 @@ describe("Dashboard", () => {
     expect(onStartSession).toHaveBeenCalledWith(expect.objectContaining({ id: "municipal-1" }));
   });
 
+  it("asks the player to open the chest before the next lesson", async () => {
+    renderDashboard({ completedLessonIds: ["municipal-1", "municipal-2"] });
+    expect(node(STRINGS.path.chestTitle)).toHaveAccessibleName(STRINGS.path.nodeLabel(STRINGS.path.chestTitle, STRINGS.path.status.current));
+    expect(screen.getByText(STRINGS.path.open)).toBeVisible();
+    expect(screen.queryByText(STRINGS.path.play)).not.toBeInTheDocument();
+
+    await userEvent.click(node("Leis e promessas"));
+    expect(screen.getByText(STRINGS.path.lockedByChestMessage)).toBeVisible();
+    expect(screen.queryByRole("button", { name: STRINGS.path.startLesson })).not.toBeInTheDocument();
+  });
+
+  it("explains other locked steps generically", async () => {
+    renderDashboard();
+    await userEvent.click(node("Leis e promessas"));
+    expect(screen.getByText(STRINGS.path.lockedMessage)).toBeVisible();
+  });
+
   it("opens the reward chest once two lessons are done", async () => {
     const { onOpenChest } = renderDashboard({ completedLessonIds: ["municipal-1", "municipal-2"] });
-    expect(node(STRINGS.path.chestTitle)).toHaveAccessibleName(STRINGS.path.nodeLabel(STRINGS.path.chestTitle, STRINGS.path.status.available));
 
     await userEvent.click(node(STRINGS.path.chestTitle));
     expect(screen.getByText(STRINGS.path.chestBonus(20))).toBeVisible();
