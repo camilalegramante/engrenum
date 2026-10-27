@@ -54,7 +54,7 @@ describe("SwipeCardView", () => {
     expect(card()).toHaveAccessibleName(STRINGS.swipe.statement(CARDS[0].statement));
     expect(screen.getByText("Candidato a Vereador")).toBeVisible();
     expect(screen.getByText(STRINGS.swipe.cardCounter(1, 2))).toBeVisible();
-    expect(screen.getByRole("img", { name: STRINGS.mascot.waving })).toBeVisible();
+    expect(screen.getByRole("img", { name: STRINGS.mascot.still })).toBeVisible();
     expect(screen.getByRole("progressbar", { name: STRINGS.hud.progress })).toHaveAttribute("aria-valuenow", "0");
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });

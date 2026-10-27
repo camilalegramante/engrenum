@@ -36,6 +36,7 @@ export const STRINGS = {
 
   mascot: {
     waving: "Capivara, mascote do Engrenum, acenando",
+    still: "Capivara, mascote do Engrenum",
     sleepy: "Capivara cochilando",
   },
 

@@ -4,8 +4,14 @@ import { STRINGS } from "@/data/strings";
 import Mascot from "./Mascot";
 
 describe("Mascot", () => {
-  it("waves with the animated capybara and falls back to a still for reduced motion", () => {
+  it("shows the still capybara by default", () => {
     const { container } = render(<Mascot className="h-24 w-24" />);
+    expect(screen.getByRole("img", { name: STRINGS.mascot.still })).toHaveAttribute("src", "/mascot/capybara.webp");
+    expect(container.firstChild).toHaveClass("h-24", "w-24");
+  });
+
+  it("waves with the animated capybara and falls back to a still for reduced motion", () => {
+    const { container } = render(<Mascot mood="happy" className="h-24 w-24" />);
     const image = screen.getByRole("img", { name: STRINGS.mascot.waving });
 
     expect(image).toHaveAttribute("src", "/mascot/capybara-wave.webp");
