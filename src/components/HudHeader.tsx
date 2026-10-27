@@ -8,7 +8,9 @@ interface HudHeaderProps {
   lives?: number;
   progressPercent?: number;
   onBack?: () => void;
-  /** Matches the wider two-column dashboard layout. */
+  /** Shows the main menu (home on desktop; mobile uses the bottom bar). */
+  onOpenGlossary?: () => void;
+  /** Matches the wider three-column dashboard layout. */
   isWide?: boolean;
 }
 
@@ -20,6 +22,7 @@ export default function HudHeader({
   lives,
   progressPercent,
   onBack,
+  onOpenGlossary,
   isWide = false,
 }: HudHeaderProps) {
   const isInLesson = progressPercent !== undefined;
@@ -27,7 +30,7 @@ export default function HudHeader({
   return (
     <header className="sticky top-0 z-30 w-full border-b-2 border-rep-navy bg-white px-4 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] shadow-sm">
       <div
-        className={`mx-auto flex items-center justify-between gap-2 sm:gap-3 ${isWide ? "max-w-5xl" : "max-w-xl"}`}
+        className={`mx-auto flex items-center justify-between gap-2 sm:gap-3 ${isWide ? "max-w-6xl" : "max-w-xl"}`}
       >
         <div className="flex items-center gap-1">
           {onBack ? (
@@ -68,6 +71,19 @@ export default function HudHeader({
         )}
 
         <div className="flex items-center gap-1.5 text-xs font-bold sm:gap-2 sm:text-sm">
+          {onOpenGlossary && (
+            <nav aria-label={STRINGS.hud.menu} className="hidden lg:flex">
+              <button
+                type="button"
+                onClick={onOpenGlossary}
+                aria-label={STRINGS.hud.glossary}
+                className="civic-btn flex min-h-[44px] min-w-[44px] items-center justify-center gap-1.5 rounded-lg border-2 border-rep-navy bg-white px-2 font-brand text-xs font-bold uppercase tracking-wider text-rep-navy shadow-neo hover:bg-slate-50 sm:px-3"
+              >
+                <span aria-hidden="true">📖</span>
+                <span className="hidden sm:inline">{STRINGS.hud.glossary}</span>
+              </button>
+            </nav>
+          )}
           <button
             type="button"
             onClick={onToggleSound}

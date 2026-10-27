@@ -8,6 +8,12 @@ export interface Progress {
   completedLessonIds: string[];
   completedLevelIds: string[];
   openedChestIds: string[];
+  /** Glossary terms opened at least once (the civic album). */
+  discoveredTermIds: string[];
+  /** Glossary terms answered correctly in "Qual é o termo?". */
+  masteredTermIds: string[];
+  /** Local day the term of the day bonus was last claimed. */
+  termOfDayReadDay: string | null;
   isSoundEnabled: boolean;
 }
 
@@ -18,6 +24,9 @@ export const INITIAL_PROGRESS: Progress = {
   completedLessonIds: [],
   completedLevelIds: [],
   openedChestIds: [],
+  discoveredTermIds: [],
+  masteredTermIds: [],
+  termOfDayReadDay: null,
   isSoundEnabled: true,
 };
 
@@ -82,7 +91,16 @@ export function updateProgress(update: (current: Progress) => Progress): void {
   listeners.forEach((listener) => listener());
 }
 
-function toLocalDay(date: Date): string {
+function subscribeToClock(): () => void {
+  return () => {};
+}
+
+/** Today's local day ("YYYY-MM-DD") on the client; null on the server and during hydration. */
+export function useToday(): string | null {
+  return useSyncExternalStore(subscribeToClock, () => toLocalDay(new Date()), () => null);
+}
+
+export function toLocalDay(date: Date): string {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${date.getFullYear()}-${month}-${day}`;
@@ -122,4 +140,26 @@ export function registerSessionCompletion(current: Progress, session: QuizSessio
 export function registerChestOpening(current: Progress, chestId: string, xpReward: number): Progress {
   if (current.openedChestIds.includes(chestId)) return current;
   return { ...current, xp: current.xp + xpReward, openedChestIds: [...current.openedChestIds, chestId] };
+}
+
+export function registerTermDiscovery(current: Progress, termId: string, xpReward: number): Progress {
+  if (current.discoveredTermIds.includes(termId)) return current;
+  return { ...current, xp: current.xp + xpReward, discoveredTermIds: [...current.discoveredTermIds, termId] };
+}
+
+/** A correct answer in "Qual é o termo?": awards XP every time and masters (and discovers) the term. */
+export function registerTermMastery(current: Progress, termId: string, xpReward: number): Progress {
+  return {
+    ...current,
+    xp: current.xp + xpReward,
+    discoveredTermIds: addUnique(current.discoveredTermIds, termId),
+    masteredTermIds: addUnique(current.masteredTermIds, termId),
+  };
+}
+
+/** Claims the term of the day bonus, once per local day. */
+export function registerTermOfDayRead(current: Progress, xpReward: number, now: Date = new Date()): Progress {
+  const today = toLocalDay(now);
+  if (current.termOfDayReadDay === today) return current;
+  return { ...current, xp: current.xp + xpReward, termOfDayReadDay: today };
 }

@@ -45,25 +45,35 @@ engrenum/
 │   │   ├── manifest.ts          # PWA manifest (served at /manifest.webmanifest)
 │   │   └── page.tsx             # renders <EngrenumApp />
 │   ├── components/
-│   │   ├── EngrenumApp.tsx      # client root: path ↔ quiz, chest reward dialog, wires progress
+│   │   ├── EngrenumApp.tsx      # client root: path ↔ quiz/swipe/glossary, chest reward dialog, wires progress
 │   │   ├── Dashboard.tsx        # home: journey panel + one LearningPathUnit per level
 │   │   ├── LearningPathUnit.tsx # level banner, winding path of nodes, node popover, mascot
 │   │   ├── JourneyPanel.tsx     # civic rank progress + daily mission cards
-│   │   ├── Mascot.tsx           # capybara mascot (waving WebP / sleepy grayscale still)
-│   │   ├── HudHeader.tsx        # sticky HUD: back, progress bar, sound, streak, XP, lives
+│   │   ├── BottomNav.tsx        # mobile bottom bar: path/profile tabs, quick mode, term of the day, glossary
+│   │   ├── Mascot.tsx           # capybara mascot (still by default / waving WebP on the path / sleepy grayscale)
+│   │   ├── HudHeader.tsx        # sticky HUD: back, main menu (glossary), progress bar, sound, streak, XP, lives
 │   │   ├── EngrenumQuiz.tsx     # game engine for one QuizSession (lesson or challenge)
-│   │   └── SwipeCardView.tsx    # "Fato ou Fake Eleitoral": swipe campaign promises left (illegal) / right (legitimate)
+│   │   ├── SwipeCardView.tsx    # "Fato ou Fake Eleitoral": swipe campaign promises left (illegal) / right (legitimate)
+│   │   ├── CivicGlossary.tsx    # "Glossário Cívico Descomplicado": search, category pills, term cards
+│   │   ├── GlossaryTermDialog.tsx # term in depth: "Capi explica", everyday example, CF/88 article
+│   │   ├── GlossaryText.tsx     # text with glossary terms as tappable inline links (quiz prompt/explanation)
+│   │   ├── GlossaryProgressContext.ts # album state (discovered/mastered) + onDiscoverTerm, provided by EngrenumApp
+│   │   ├── useGlossaryTermDialog.tsx  # shared "open a term": album discovery, reward, portaled dialog
+│   │   └── TermQuiz.tsx         # "Qual é o termo?": pick the term that matches Capi's clue
 │   ├── data/
 │   │   ├── levels.ts            # LEVELS + themed lessons, constants, rank/civic-title helpers
 │   │   ├── questions.json
+│   │   ├── glossaryTerms.json   # GlossaryTerm dataset (15–20 terms, alphabetical)
 │   │   ├── strings.ts           # STRINGS: every pt-BR UI text (labels, buttons, aria, feedback), grouped by screen
 │   │   └── swipeCards.json      # SwipeCard deck for "Fato ou Fake Eleitoral"
 │   ├── lib/
+│   │   ├── glossary.ts          # GLOSSARY_TERMS, search, inline links, quiz rounds, term of the day, album progress
 │   │   ├── path.ts              # buildPath(): levels + progress → path units/nodes with status
 │   │   ├── progress.ts          # localStorage-backed progress store
 │   │   └── sound.ts             # Web Audio API sound effects
 │   └── types/
 │       ├── quiz.ts
+│       ├── glossary.ts          # GlossaryTerm, GlossaryCategory, GlossaryTextSegment, TermQuizQuestion
 │       └── swipe.ts             # SwipeCard, SwipeFeedback
 │
 │   (tests are colocated: every module has a sibling `*.test.ts(x)`)
@@ -231,7 +241,8 @@ Difficulty rules (the answer must never be obvious):
 
 ### Home: the learning path (`Dashboard.tsx`)
 Inspired by language-learning apps (a winding path of steps, a mascot, rewards), but drawn in Engrenum's own navy/gold neo-brutalist identity — never copy another product's layout or art.
-- **Journey panel** (`JourneyPanel.tsx`): civic rank with a progress bar to the next rank (`getRankProgress`) and the **daily mission** ("Complete 1 lição hoje", done when `lastPlayedDay` is today). Two cards side by side on mobile, sticky right column on desktop (`lg`).
+- **Journey panel** (`JourneyPanel.tsx`): civic rank with a progress bar to the next rank (`getRankProgress`) and the **daily mission** ("Complete 1 lição hoje", done when `lastPlayedDay` is today). Two cards side by side on mobile, sticky left column on desktop (`lg`).
+- **Desktop layout (`lg`):** three columns — journey panel (left) | learning path (center) | quick modes: "Fato ou Fake Eleitoral" and the term of the day (right, sticky). Below `lg`, a fixed **bottom bar** (`BottomNav.tsx`) replaces the side columns: 🗺️ Trilha and 👤 Perfil are tabs (path / journey panel), ⚡ Modo rápido starts "Fato ou Fake Eleitoral", ☀️ Termo do dia opens the term (red dot while the daily bonus is pending), 📖 Glossário opens the glossary. The header's "Glossário" menu item is desktop-only.
 - **One unit per level** (`LearningPathUnit.tsx`): a banner ("Nível N · Sphere", title, subtitle, `done/total ETAPAS`, "✓ CONCLUÍDO" or "EM BREVE"), then a **winding path** of round nodes, plus the **capybara mascot** (`Mascot.tsx`) beside it with the level's `mascotTip`. The mascot alternates sides per unit and the path winds away from it.
 - **Path order per level** (`buildPath` in `src/lib/path.ts`): lessons in order → a **reward chest** after the 2nd lesson → the **Desafio final** (all questions of the level).
   - Lessons and the challenge are sequential: each unlocks when the previous one is completed. The first not-done step is `current` (navy node, pulse ring and a bobbing "JOGAR" callout).
@@ -248,11 +259,20 @@ Plays one `QuizSession` (a lesson or a challenge); state lives in a single `Game
 - **3 lives per session** (`INITIAL_LIVES`). At 0 lives → "Credibilidade Esgotada!" dialog (retry or back to the path).
 - **Victory:** lessons show "Lição Concluída" ("Lição perfeita!" at 100%); challenges show "Nível Concluído" with the civic title by accuracy (`getCivicTitle`). Both show XP earned and accuracy, then register the session (`registerSessionCompletion`) and update the streak.
 
+### Civic glossary (`CivicGlossary.tsx`)
+- Opened from the "📖 Glossário" item of the header's main menu (`HudHeader` `onOpenGlossary`, home only); the home itself only shows the term of the day. Real-time, accent/case-insensitive search over term, aliases and definition (`filterGlossaryTerms`), plus category pills ("Todos", "Orçamento", "Legislação", "Poderes", "Eleições"; keys `budget | legislation | powers | elections`).
+- Tapping a card opens `GlossaryTermDialog` (bottom sheet on mobile): category, "Capi explica" with the `shortDefinition`, "No dia a dia" with the `practicalExample`, and the CF/88 article when present. Closes with the buttons, Escape or the backdrop, and returns focus to the opener.
+- **In-game links:** `GlossaryText` turns the first mention of each term (its `term` or one of its `aliases`, whole words) into a tappable link. The quiz links the explanation and, **only after "Verificar Resposta"**, the prompt — a definition must never hint at the answer.
+- **Civic album:** opening a term (glossary card, inline link or term of the day) adds it to `discoveredTermIds` with `TERM_DISCOVERY_XP` (+5) the first time; the dialog shows the reward. The glossary shows the album progress bar, a seal per fully discovered category, and card states (dashed "Novo · +5 XP" / ✓ in the album / ★ mastered). Album state reaches nested views (e.g. quiz links) through `GlossaryProgressContext`; without a provider nothing is tracked or rewarded.
+- **"Qual é o termo?" (`TermQuiz.tsx`):** rounds of `TERM_QUIZ_SIZE` (5) clues built by `buildTermQuizRound` — the clue is the `shortDefinition` with the term blanked out (`maskTerm`), 4 options with same-category distractors first, not-yet-mastered terms asked first. Each correct answer gives `TERM_QUIZ_XP` (+10) and adds the term to `masteredTermIds`. No lives.
+- **Term of the day:** its own card in the dashboard's right column. `getTermOfDay(day)` is deterministic per local day; the day comes from `useToday()` (null on the server, so nothing reads the clock while prerendering). Reading it grants `TERM_OF_DAY_XP` (+10) once per day (`termOfDayReadDay`). It doesn't count toward the streak or the daily mission ("Complete 1 lição hoje").
+- Dataset rules (`src/data/glossaryTerms.test.ts`): 15–20 terms, slug ids, alphabetical order, every category covered, no name/alias shared between terms, clues never reveal the term, `constitutionalArticle` cites CF/88 when present. Same neutrality and plain-language rules as the questions.
+
 ### Progression
 - **Rank by XP** (`RANKS`, `getRankProgress`): Eleitor Curioso (0) → Fiscal Cívico Júnior (60) → Líder Comunitário (150) → Constitucionalista Pleno (300).
 - **Civic title by challenge accuracy** (`getCivicTitle`): Guardião da Constituição (100%), Fiscal do Povo (≥70%), Cidadão Atento (≥40%), Aprendiz Cívico.
 - **Streak:** consecutive local calendar days with at least one completed lesson or challenge.
-- **Stored progress** (`Progress`): `xp`, `streak`, `lastPlayedDay`, `completedLessonIds`, `completedLevelIds`, `openedChestIds`, `isSoundEnabled`.
+- **Stored progress** (`Progress`): `xp`, `streak`, `lastPlayedDay`, `completedLessonIds`, `completedLevelIds`, `openedChestIds`, `discoveredTermIds`, `masteredTermIds`, `termOfDayReadDay`, `isSoundEnabled`.
 
 ### Rendering & State
 - `page.tsx` is a Server Component that renders the client root `EngrenumApp`.
@@ -268,7 +288,8 @@ Plays one `QuizSession` (a lesson or a challenge); state lives in a single `Game
 - Respect safe areas (`env(safe-area-inset-*)`) on the sticky header, sticky footer, and drawer.
 - **Mascot assets** (`public/mascot/`), produced from a source video (crop → border flood-fill background removal → 10 fps @ 180 px tall → static body frozen from a reference frame → temporal stabilization → animated WebP):
   - `capybara-wave.webp`: seamless 1.5 s waving loop with alpha (~23 KB). Animated **WebP, not GIF**: GIF only has 1-bit transparency (jagged edges, no soft shadow) and is several times larger.
-  - `capybara.webp`: still, eyes open; served instead of the animation under `prefers-reduced-motion: reduce` (via `<picture>`).
+  - `capybara.webp`: still, eyes open; the default `<Mascot />` (dialogs, glossary, swipe game). Also served instead of the animation under `prefers-reduced-motion: reduce` (via `<picture>`).
+  - The waving animation (`mood="happy"`) is reserved for the learning path, so the capybara doesn't wave on every screen.
   - `capybara-sleepy.webp`: still, eyes closed; shown grayscale for locked / coming-soon levels.
   - Reference poses, palette and the generation guide live in `design/mascot/` (see its README); start new poses or animations from `capybara-neutral.png`.
   - Budget: keep the animated mascot ≤ 50 KB and stills ≤ 10 KB, 2× the largest display size, with `unoptimized` images (the optimizer must not touch animated WebP).

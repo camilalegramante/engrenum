@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import GlossaryText from "@/components/GlossaryText";
 import HudHeader from "@/components/HudHeader";
 import { INITIAL_LIVES, SPHERE_LABELS, XP_PER_CORRECT_ANSWER, getCivicTitle } from "@/data/levels";
 import { STRINGS } from "@/data/strings";
@@ -191,7 +192,10 @@ export default function EngrenumQuiz({
 
           <div className="space-y-3 rounded-2xl border-2 border-rep-navy bg-white p-5 shadow-neo sm:p-6">
             <p className="font-brand text-xs uppercase tracking-wider text-rep-muted">{STRINGS.quiz.scenarioLabel}</p>
-            <h2 className="text-lg font-bold leading-snug text-rep-navy sm:text-xl">{currentQuestion.prompt}</h2>
+            <h2 className="text-lg font-bold leading-snug text-rep-navy sm:text-xl">
+              {/* Glossary links only after verifying, so a definition never hints at the answer */}
+              {isSelectionLocked ? <GlossaryText text={currentQuestion.prompt} /> : currentQuestion.prompt}
+            </h2>
           </div>
 
           <ul className="space-y-3 pt-2">
@@ -296,7 +300,9 @@ export default function EngrenumQuiz({
                 {!isAnswerCorrect && correctOption && (
                   <p className="text-sm font-bold text-rep-navy">{STRINGS.quiz.correctAnswer(correctOption.text)}</p>
                 )}
-                <p className="text-sm font-medium leading-relaxed text-slate-700">{currentQuestion.explanation}</p>
+                <p className="text-sm font-medium leading-relaxed text-slate-700">
+                  <GlossaryText text={currentQuestion.explanation} />
+                </p>
               </div>
             </div>
 

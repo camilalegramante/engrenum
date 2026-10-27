@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { STRINGS } from "@/data/strings";
@@ -85,6 +85,36 @@ describe("EngrenumQuiz", () => {
     expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "50");
     expect(props.onCorrectAnswer).toHaveBeenCalledOnce();
     expect(playSound).toHaveBeenCalledWith("correct", true);
+  });
+
+  it("links glossary terms in the scenario only after verifying, and in the explanation", async () => {
+    const session = makeSession(1, "lesson");
+    session.questions[0] = {
+      ...session.questions[0],
+      prompt: "Quem pode aumentar o imposto?",
+      explanation: "Um decreto não basta.",
+    };
+    render(
+      <EngrenumQuiz
+        session={session}
+        xp={0}
+        streak={0}
+        isSoundEnabled
+        onToggleSound={vi.fn()}
+        onCorrectAnswer={vi.fn()}
+        onComplete={vi.fn()}
+        onExit={vi.fn()}
+      />,
+    );
+    expect(screen.queryByRole("button", { name: "imposto" })).not.toBeInTheDocument();
+
+    await answer("Certa 1");
+    const prompt = screen.getByRole("heading", { level: 2 });
+    expect(prompt).toHaveTextContent("Quem pode aumentar o imposto?");
+    expect(within(prompt).getByRole("button", { name: "imposto" })).toBeVisible();
+
+    await userEvent.click(within(screen.getByRole("status")).getByRole("button", { name: "decreto" }));
+    expect(screen.getByRole("dialog", { name: "Decreto" })).toHaveTextContent(STRINGS.glossary.capiExplains);
   });
 
   it("costs a life and shows the right answer on a mistake", async () => {

@@ -1,0 +1,182 @@
+[
+  {
+    "id": "controle-externo",
+    "term": "Controle Externo",
+    "category": "powers",
+    "shortDefinition": "É a fiscalização das contas do Executivo feita pelo Poder Legislativo, com a ajuda técnica do Tribunal de Contas.",
+    "practicalExample": "Todo ano o prefeito presta contas. O Tribunal de Contas analisa os gastos e dá um parecer, e a Câmara de Vereadores vota se aprova ou rejeita essas contas.",
+    "constitutionalArticle": "Arts. 31 e 71 da CF/88",
+    "aliases": ["Tribunal de Contas", "Tribunais de Contas"]
+  },
+  {
+    "id": "decreto",
+    "term": "Decreto",
+    "category": "legislation",
+    "shortDefinition": "É uma ordem assinada pelo chefe do Executivo para detalhar como uma lei será cumprida; ele não pode criar obrigações que a lei não criou.",
+    "practicalExample": "Uma lei municipal manda plantar árvores nas calçadas largas. Depois, um decreto do prefeito define quais espécies podem ser usadas e os prazos para o plantio.",
+    "constitutionalArticle": "Art. 84, IV da CF/88",
+    "aliases": ["decretos"]
+  },
+  {
+    "id": "dotacao-orcamentaria",
+    "term": "Dotação Orçamentária",
+    "category": "budget",
+    "shortDefinition": "É o valor reservado no orçamento para uma despesa específica; sem dotação, o governo não pode gastar.",
+    "practicalExample": "Se o orçamento da cidade reserva R$ 2 milhões para reformar escolas, essa é a dotação. Para gastar além disso, é preciso aprovar um crédito extra no Legislativo.",
+    "constitutionalArticle": "Art. 167, II da CF/88",
+    "aliases": ["dotação", "dotações"]
+  },
+  {
+    "id": "emenda-parlamentar",
+    "term": "Emenda Parlamentar",
+    "category": "budget",
+    "shortDefinition": "É uma mudança que um parlamentar propõe no projeto de orçamento para enviar dinheiro a uma obra, serviço ou cidade.",
+    "practicalExample": "Um deputado destina, por emenda, verba para comprar uma ambulância para a sua cidade. Ele não compra a ambulância: quem faz a compra é a prefeitura que recebe o dinheiro.",
+    "constitutionalArticle": "Art. 166, §§ 3º e 9º da CF/88",
+    "aliases": ["emendas parlamentares"]
+  },
+  {
+    "id": "imposto",
+    "term": "Imposto",
+    "category": "budget",
+    "shortDefinition": "É o dinheiro que todos pagam ao governo para financiar os serviços públicos em geral, sem receber algo específico em troca.",
+    "practicalExample": "O IPTU da sua casa não paga só a sua rua: ele entra no caixa da prefeitura e ajuda a manter escolas, postos de saúde e a coleta de lixo da cidade inteira.",
+    "constitutionalArticle": "Arts. 145, I, e 150, I da CF/88",
+    "aliases": ["impostos"]
+  },
+  {
+    "id": "improbidade-administrativa",
+    "term": "Improbidade Administrativa",
+    "category": "powers",
+    "shortDefinition": "É quando um agente público age de forma desonesta no cargo, enriquecendo ilegalmente, causando prejuízo aos cofres públicos ou violando os princípios da administração.",
+    "practicalExample": "Um gestor que paga uma obra que nunca foi feita pode responder por improbidade: perder o cargo, ter os direitos políticos suspensos e devolver o dinheiro, além de responder a eventual processo criminal.",
+    "constitutionalArticle": "Art. 37, § 4º da CF/88",
+    "aliases": ["improbidade"]
+  },
+  {
+    "id": "inelegibilidade",
+    "term": "Inelegibilidade",
+    "category": "elections",
+    "shortDefinition": "É o impedimento de uma pessoa se candidatar a um cargo eletivo, por um período ou por uma situação prevista na Constituição ou em lei.",
+    "practicalExample": "Pela Lei da Ficha Limpa, quem foi condenado por certos crimes por um tribunal de segunda instância fica inelegível e não pode registrar candidatura por um tempo.",
+    "constitutionalArticle": "Art. 14, §§ 4º a 9º da CF/88",
+    "aliases": ["inelegível", "inelegíveis", "Ficha Limpa"]
+  },
+  {
+    "id": "iniciativa-de-lei",
+    "term": "Iniciativa de Lei",
+    "category": "legislation",
+    "shortDefinition": "É o direito de apresentar um projeto de lei; alguns assuntos só podem ser propostos pelo chefe do Executivo.",
+    "practicalExample": "Um vereador pode propor uma lei sobre placas de trânsito, mas não uma lei que crie uma secretaria nova na prefeitura: essa iniciativa é reservada ao prefeito.",
+    "constitutionalArticle": "Art. 61 da CF/88",
+    "aliases": ["iniciativa reservada", "iniciativa privativa"]
+  },
+  {
+    "id": "interesse-local",
+    "term": "Interesse Local",
+    "category": "powers",
+    "shortDefinition": "São os assuntos que afetam principalmente a vida dentro de uma cidade e, por isso, são resolvidos pelo município.",
+    "practicalExample": "Horário do comércio, linhas de ônibus dentro da cidade e coleta de lixo são de interesse local: a decisão é da prefeitura e da Câmara, não do Estado nem da União.",
+    "constitutionalArticle": "Art. 30, I e V da CF/88",
+    "aliases": []
+  },
+  {
+    "id": "lei-de-diretrizes-orcamentarias",
+    "term": "Lei de Diretrizes Orçamentárias",
+    "category": "budget",
+    "shortDefinition": "É a lei que define, a cada ano, as metas e prioridades do governo e as regras para montar o orçamento do ano seguinte.",
+    "practicalExample": "Se a LDO coloca a creche em tempo integral como prioridade, o orçamento do ano seguinte precisa reservar dinheiro para isso.",
+    "constitutionalArticle": "Art. 165, II e § 2º da CF/88",
+    "aliases": ["LDO"]
+  },
+  {
+    "id": "lei-orcamentaria-anual",
+    "term": "Lei Orçamentária Anual",
+    "category": "budget",
+    "shortDefinition": "É o orçamento do governo: a lei que estima quanto vai entrar de dinheiro no ano e fixa quanto pode ser gasto em cada área.",
+    "practicalExample": "O prefeito envia o projeto da LOA, os vereadores podem alterá-lo e o votam. Só depois disso a prefeitura sabe quanto pode gastar com saúde, educação e obras.",
+    "constitutionalArticle": "Art. 165, III e § 5º da CF/88",
+    "aliases": ["LOA", "orçamento anual"]
+  },
+  {
+    "id": "licitacao",
+    "term": "Licitação",
+    "category": "budget",
+    "shortDefinition": "É a disputa pública e com regras iguais para todos que o governo usa para escolher quem vai vender produtos, prestar serviços ou fazer obras.",
+    "practicalExample": "Para contratar a empresa da merenda escolar, a prefeitura publica um edital, as empresas fazem propostas e vence quem cumprir as exigências com a melhor oferta.",
+    "constitutionalArticle": "Art. 37, XXI da CF/88",
+    "aliases": ["licitações"]
+  },
+  {
+    "id": "medida-provisoria",
+    "term": "Medida Provisória",
+    "category": "legislation",
+    "shortDefinition": "É um ato do Presidente da República com força de lei, usado em casos de relevância e urgência, que precisa ser aprovado pelo Congresso para continuar valendo.",
+    "practicalExample": "Uma medida provisória vale assim que é publicada. Se o Congresso não a transformar em lei em até 120 dias, ela perde a validade.",
+    "constitutionalArticle": "Art. 62 da CF/88",
+    "aliases": ["medidas provisórias"]
+  },
+  {
+    "id": "quociente-eleitoral",
+    "term": "Quociente Eleitoral",
+    "category": "elections",
+    "shortDefinition": "É o número de votos válidos que um partido precisa somar para conquistar cada vaga nas eleições de deputados e vereadores.",
+    "practicalExample": "Se 100 mil votos válidos disputam 10 vagas, cada 10 mil votos do partido garantem uma cadeira. Por isso um candidato muito votado pode ajudar a eleger colegas do mesmo partido.",
+    "constitutionalArticle": "Art. 45 da CF/88",
+    "aliases": []
+  },
+  {
+    "id": "quorum",
+    "term": "Quórum",
+    "category": "legislation",
+    "shortDefinition": "É o número mínimo de parlamentares presentes ou de votos necessários para que uma votação aconteça ou uma proposta seja aprovada.",
+    "practicalExample": "Uma lei comum passa com a maioria dos votos, desde que a maioria dos membros esteja presente. Já mudar a Constituição exige três quintos dos votos, em dois turnos, em cada Casa do Congresso.",
+    "constitutionalArticle": "Arts. 47 e 60, § 2º da CF/88",
+    "aliases": []
+  },
+  {
+    "id": "sancao",
+    "term": "Sanção",
+    "category": "legislation",
+    "shortDefinition": "É a concordância do chefe do Executivo com um projeto aprovado pelo Legislativo, que assim se torna lei.",
+    "practicalExample": "Depois que a Câmara aprova um projeto, o prefeito tem 15 dias úteis para sancionar ou vetar. Se ficar em silêncio nesse prazo, o projeto é sancionado automaticamente.",
+    "constitutionalArticle": "Art. 66 da CF/88",
+    "aliases": []
+  },
+  {
+    "id": "separacao-dos-poderes",
+    "term": "Separação dos Poderes",
+    "category": "powers",
+    "shortDefinition": "É a divisão do poder do Estado entre Legislativo, Executivo e Judiciário, independentes e harmônicos, para que um fiscalize o outro.",
+    "practicalExample": "O Legislativo faz as leis, o Executivo as coloca em prática e o Judiciário resolve conflitos sobre elas. Assim, nenhuma autoridade concentra todo o poder.",
+    "constitutionalArticle": "Art. 2º da CF/88",
+    "aliases": ["separação de poderes"]
+  },
+  {
+    "id": "superfaturamento",
+    "term": "Superfaturamento",
+    "category": "budget",
+    "shortDefinition": "É quando o governo paga por um produto, serviço ou obra um valor acima do preço justo ou por algo que não foi entregue.",
+    "practicalExample": "Comprar cadeiras escolares pelo triplo do preço de mercado é superfaturamento: o dinheiro a mais sai dos cofres públicos e poderia ter ido para outros serviços.",
+    "constitutionalArticle": "Art. 70 da CF/88",
+    "aliases": ["superfaturado", "superfaturada"]
+  },
+  {
+    "id": "veto",
+    "term": "Veto",
+    "category": "legislation",
+    "shortDefinition": "É a recusa do chefe do Executivo a um projeto aprovado pelo Legislativo, no todo ou em parte, por ser inconstitucional ou contrário ao interesse público.",
+    "practicalExample": "O prefeito veta um trecho de uma lei aprovada pela Câmara. Os vereadores podem derrubar esse veto pelo voto da maioria absoluta, e o trecho passa a valer.",
+    "constitutionalArticle": "Art. 66, §§ 1º e 4º da CF/88",
+    "aliases": ["vetos", "vetar"]
+  },
+  {
+    "id": "voto-obrigatorio",
+    "term": "Voto Obrigatório",
+    "category": "elections",
+    "shortDefinition": "É o dever de votar de todo brasileiro alfabetizado entre 18 e 70 anos; para jovens de 16 e 17 anos, maiores de 70 e analfabetos, votar é opcional.",
+    "practicalExample": "Quem é obrigado a votar e não comparece precisa justificar a ausência ou pagar uma multa, senão pode ter problemas para tirar passaporte ou tomar posse em concurso público.",
+    "constitutionalArticle": "Art. 14, § 1º da CF/88",
+    "aliases": []
+  }
+]

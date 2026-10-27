@@ -118,6 +118,9 @@ describe("registerSessionCompletion", () => {
     completedLessonIds: [],
     completedLevelIds: [],
     openedChestIds: [],
+    discoveredTermIds: [],
+    masteredTermIds: [],
+    termOfDayReadDay: null,
     isSoundEnabled: true,
   };
   const lesson: QuizSession = { id: "municipal-1", kind: "lesson", levelId: "municipal", title: "Lição", questions: [] };
@@ -192,5 +195,53 @@ describe("registerChestOpening", () => {
     const opened = registerChestOpening(INITIAL_PROGRESS, "municipal-chest", 20);
     expect(opened).toMatchObject({ xp: 20, openedChestIds: ["municipal-chest"] });
     expect(registerChestOpening(opened, "municipal-chest", 20)).toBe(opened);
+  });
+});
+
+describe("glossary progress", () => {
+  it("adds a term to the album with bonus XP only the first time", async () => {
+    const { registerTermDiscovery, INITIAL_PROGRESS } = await loadModule();
+    const discovered = registerTermDiscovery(INITIAL_PROGRESS, "veto", 5);
+    expect(discovered).toMatchObject({ xp: 5, discoveredTermIds: ["veto"] });
+    expect(registerTermDiscovery(discovered, "veto", 5)).toBe(discovered);
+  });
+
+  it("masters (and discovers) a term on every correct answer, awarding XP each time", async () => {
+    const { registerTermMastery, INITIAL_PROGRESS } = await loadModule();
+    const once = registerTermMastery(INITIAL_PROGRESS, "veto", 10);
+    expect(once).toMatchObject({ xp: 10, discoveredTermIds: ["veto"], masteredTermIds: ["veto"] });
+    expect(registerTermMastery(once, "veto", 10)).toMatchObject({ xp: 20, masteredTermIds: ["veto"] });
+  });
+
+  it("claims the term of the day bonus once per local day", async () => {
+    const { registerTermOfDayRead, INITIAL_PROGRESS } = await loadModule();
+    const day = new Date(2026, 9, 23, 23, 59);
+    const read = registerTermOfDayRead(INITIAL_PROGRESS, 10, day);
+    expect(read).toMatchObject({ xp: 10, termOfDayReadDay: "2026-10-23" });
+    expect(registerTermOfDayRead(read, 10, day)).toBe(read);
+    expect(registerTermOfDayRead(read, 10, new Date(2026, 9, 24, 0, 1))).toMatchObject({ xp: 20, termOfDayReadDay: "2026-10-24" });
+  });
+
+  it("uses the current day by default", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 0, 5, 12));
+    const { registerTermOfDayRead, INITIAL_PROGRESS } = await loadModule();
+    expect(registerTermOfDayRead(INITIAL_PROGRESS, 10).termOfDayReadDay).toBe("2026-01-05");
+  });
+});
+
+describe("useToday", () => {
+  it("returns the local day on the client and null on the server", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 1, 3, 8));
+    const { useToday } = await loadModule();
+    const { result, unmount } = renderHook(() => useToday());
+    expect(result.current).toBe("2026-02-03");
+    unmount();
+
+    function DayProbe() {
+      return createElement("span", null, `day:${useToday()}`);
+    }
+    expect(renderToString(createElement(DayProbe))).toContain("day:null");
   });
 });

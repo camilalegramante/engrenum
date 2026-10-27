@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { STRINGS } from "@/data/strings";
@@ -14,6 +14,15 @@ describe("HudHeader", () => {
     expect(screen.queryByRole("button", { name: STRINGS.hud.back })).not.toBeInTheDocument();
     expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     expect(screen.queryByTitle(STRINGS.hud.livesTitle)).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+  });
+
+  it("opens the glossary from the main menu", async () => {
+    const onOpenGlossary = vi.fn();
+    render(<HudHeader xp={0} streak={0} isSoundEnabled onToggleSound={vi.fn()} onOpenGlossary={onOpenGlossary} />);
+    const menu = screen.getByRole("navigation", { name: STRINGS.hud.menu });
+    await userEvent.click(within(menu).getByRole("button", { name: STRINGS.hud.glossary }));
+    expect(onOpenGlossary).toHaveBeenCalledOnce();
   });
 
   it("shows back button, progress and lives during a lesson", async () => {
@@ -56,7 +65,7 @@ describe("HudHeader", () => {
     const { container, rerender } = render(<HudHeader xp={0} streak={0} isSoundEnabled onToggleSound={vi.fn()} />);
     expect(container.querySelector("header > div")).toHaveClass("max-w-xl");
     rerender(<HudHeader xp={0} streak={0} isSoundEnabled onToggleSound={vi.fn()} isWide />);
-    expect(container.querySelector("header > div")).toHaveClass("max-w-5xl");
+    expect(container.querySelector("header > div")).toHaveClass("max-w-6xl");
   });
 
   it("keeps icon buttons at least 44px", () => {

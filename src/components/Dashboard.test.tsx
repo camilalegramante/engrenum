@@ -3,12 +3,13 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LEVELS } from "@/data/levels";
 import { STRINGS } from "@/data/strings";
+import { TERM_OF_DAY_XP, getTermOfDay } from "@/lib/glossary";
 import { INITIAL_PROGRESS, type Progress } from "@/lib/progress";
 import type { Level } from "@/types/quiz";
 import Dashboard from "./Dashboard";
 
 function renderDashboard(progress: Partial<Progress> = {}, levels?: Level[]) {
-  const props = { onStartSession: vi.fn(), onOpenChest: vi.fn(), onStartSwipe: vi.fn() };
+  const props = { onStartSession: vi.fn(), onOpenChest: vi.fn(), onStartSwipe: vi.fn(), onOpenGlossary: vi.fn(), onReadTermOfDay: vi.fn() };
   render(<Dashboard progress={{ ...INITIAL_PROGRESS, ...progress }} levels={levels} {...props} />);
   return props;
 }
@@ -35,6 +36,92 @@ describe("Dashboard", () => {
     expect(onStartSwipe).toHaveBeenCalledOnce();
   });
 
+
+  describe("mobile bottom bar", () => {
+    function bottomNav(): HTMLElement {
+      return screen.getByRole("navigation", { name: STRINGS.bottomNav.label });
+    }
+
+    it("switches between the path and the profile (civic rank and daily mission)", async () => {
+      renderDashboard();
+      const nav = bottomNav();
+      const pathTab = within(nav).getByRole("button", { name: STRINGS.bottomNav.path });
+      const profileTab = within(nav).getByRole("button", { name: STRINGS.bottomNav.profile });
+      const journey = screen.getByRole("complementary", { name: STRINGS.journey.label }).parentElement as HTMLElement;
+      const path = screen.getByRole("heading", { level: 1, name: STRINGS.dashboard.heading }).parentElement as HTMLElement;
+      expect(pathTab).toHaveAttribute("aria-current", "page");
+      expect(journey).toHaveClass("hidden");
+      expect(path).not.toHaveClass("hidden");
+
+      await userEvent.click(profileTab);
+      expect(profileTab).toHaveAttribute("aria-current", "page");
+      expect(pathTab).not.toHaveAttribute("aria-current");
+      expect(journey).not.toHaveClass("hidden");
+      expect(path).toHaveClass("hidden");
+
+      await userEvent.click(pathTab);
+      expect(path).not.toHaveClass("hidden");
+    });
+
+    it("starts the quick mode and opens the glossary", async () => {
+      const { onStartSwipe, onOpenGlossary } = renderDashboard();
+      await userEvent.click(within(bottomNav()).getByRole("button", { name: STRINGS.bottomNav.quickMode }));
+      expect(onStartSwipe).toHaveBeenCalledOnce();
+      await userEvent.click(within(bottomNav()).getByRole("button", { name: STRINGS.bottomNav.glossary }));
+      expect(onOpenGlossary).toHaveBeenCalledOnce();
+    });
+
+  });
+
+  describe("term of the day", () => {
+    const today = "2026-10-27";
+    const termOfDay = getTermOfDay(today);
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(new Date(2026, 9, 27, 12));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("shows today's term and claims its bonus when read", async () => {
+      const { onReadTermOfDay } = renderDashboard();
+      const section = screen.getByRole("region", { name: termOfDay.term });
+      expect(section).toHaveTextContent(STRINGS.dashboard.termOfDayHeading);
+      expect(section).toHaveTextContent(termOfDay.shortDefinition);
+
+      await userEvent.click(within(section).getByRole("button", { name: STRINGS.dashboard.termOfDayAction(TERM_OF_DAY_XP) }));
+      expect(onReadTermOfDay).toHaveBeenCalledOnce();
+      const dialog = screen.getByRole("dialog", { name: termOfDay.term });
+      expect(dialog).toHaveTextContent(STRINGS.glossary.reward(TERM_OF_DAY_XP));
+    });
+
+    it("opens it from the bottom bar, flagging the pending bonus until it is read", async () => {
+      const { onReadTermOfDay } = renderDashboard();
+      const nav = screen.getByRole("navigation", { name: STRINGS.bottomNav.label });
+      await userEvent.click(within(nav).getByRole("button", { name: STRINGS.bottomNav.termOfDayPending }));
+      expect(onReadTermOfDay).toHaveBeenCalledOnce();
+      expect(screen.getByRole("dialog", { name: termOfDay.term })).toHaveTextContent(STRINGS.glossary.reward(TERM_OF_DAY_XP));
+    });
+
+    it("drops the bottom bar badge once read today", () => {
+      renderDashboard({ termOfDayReadDay: today });
+      const nav = screen.getByRole("navigation", { name: STRINGS.bottomNav.label });
+      expect(within(nav).getByRole("button", { name: STRINGS.bottomNav.termOfDay })).toBeEnabled();
+    });
+
+    it("lets the player reread it without a second bonus", async () => {
+      renderDashboard({ termOfDayReadDay: today });
+      const section = screen.getByRole("region", { name: termOfDay.term });
+      expect(section).toHaveTextContent(STRINGS.dashboard.termOfDayDone);
+
+      await userEvent.click(within(section).getByRole("button", { name: STRINGS.dashboard.termOfDayReread }));
+      expect(screen.getByRole("dialog", { name: termOfDay.term })).not.toHaveTextContent(STRINGS.glossary.newDiscovery);
+    });
+  });
+
   it("highlights the next step with a 'Jogar' callout and the mascot tip", () => {
     renderDashboard();
     expect(node("Serviços do bairro")).toHaveAccessibleName(STRINGS.path.nodeLabel("Serviços do bairro", STRINGS.path.status.current));
@@ -44,11 +131,24 @@ describe("Dashboard", () => {
     expect(screen.getByRole("img", { name: STRINGS.mascot.waving })).toBeVisible();
   });
 
-  it("opens the next step when the 'Jogar' callout is clicked", async () => {
+  it("treats the 'Jogar' callout as a hint, not a button", () => {
     renderDashboard();
-    await userEvent.click(screen.getByText(STRINGS.path.play));
-    expect(node("Serviços do bairro")).toHaveAttribute("aria-expanded", "true");
+    const callout = screen.getByText(STRINGS.path.play);
+    expect(callout.closest("button")).toBeNull();
+    expect(callout).toHaveClass("pointer-events-none");
+  });
+
+  // Hidden with `visibility`, not removed, so the mascot below it stays in place.
+  it("hides the mascot tip while a step's card is open, keeping the mascot where it was", async () => {
+    renderDashboard();
+    const tip = screen.getByText(LEVELS[0].mascotTip);
+    await userEvent.click(node("Serviços do bairro"));
     expect(screen.getByRole("button", { name: STRINGS.path.startLesson })).toBeVisible();
+    expect(screen.getByText(LEVELS[0].mascotTip)).toBe(tip);
+    expect(tip).toHaveClass("invisible");
+
+    await userEvent.click(node("Serviços do bairro"));
+    expect(tip).not.toHaveClass("invisible");
   });
 
   it("shows coming-soon levels with placeholder steps and a sleepy mascot", () => {

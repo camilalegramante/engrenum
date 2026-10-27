@@ -81,6 +81,12 @@
   }
 }
 
+/* No rubber-band overscroll: it drags fixed bars (header, bottom nav) along with the page on mobile */
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
 body {
   background-color: var(--color-rep-cream);
   color: var(--color-rep-navy);

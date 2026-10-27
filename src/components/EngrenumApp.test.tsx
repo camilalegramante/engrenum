@@ -1,9 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LEVELS } from "@/data/levels";
 import { STRINGS } from "@/data/strings";
 import swipeCards from "@/data/swipeCards.json";
+import { GLOSSARY_TERMS, buildTermQuizRound, getTermOfDay, segmentByGlossary } from "@/lib/glossary";
 import type { Question } from "@/types/quiz";
 
 vi.mock("@/lib/sound", () => ({ playSound: vi.fn() }));
@@ -41,6 +42,11 @@ beforeEach(() => {
   window.localStorage.clear();
 });
 
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+});
+
 describe("EngrenumApp", () => {
   it("starts on the learning path", async () => {
     await renderApp();
@@ -73,6 +79,83 @@ describe("EngrenumApp", () => {
 
     await userEvent.click(screen.getByRole("button", { name: STRINGS.hud.back }));
     expect(screen.getByRole("region", { name: "No Meu Bairro" })).toBeVisible();
+  });
+
+  it("opens the civic glossary and returns to the path", async () => {
+    await renderApp();
+    await userEvent.click(within(screen.getByRole("navigation", { name: STRINGS.hud.menu })).getByRole("button", { name: STRINGS.hud.glossary }));
+    expect(screen.getByRole("heading", { level: 1, name: STRINGS.glossary.heading })).toBeVisible();
+
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.hud.back }));
+    expect(screen.getByRole("region", { name: "No Meu Bairro" })).toBeVisible();
+  });
+
+  it("adds an opened glossary term to the album, rewarding it only once", async () => {
+    await renderApp();
+    await userEvent.click(within(screen.getByRole("navigation", { name: STRINGS.hud.menu })).getByRole("button", { name: STRINGS.hud.glossary }));
+    const [first] = GLOSSARY_TERMS;
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.glossary.cardLabel(first.term, STRINGS.glossary.termStatus.new) }));
+    expect(screen.getByRole("dialog")).toHaveTextContent(STRINGS.glossary.reward(5));
+    expect(storedProgress()).toMatchObject({ xp: 5, discoveredTermIds: [first.id] });
+
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.glossary.confirm }));
+    await userEvent.click(
+      screen.getByRole("button", { name: STRINGS.glossary.cardLabel(first.term, STRINGS.glossary.termStatus.discovered) }),
+    );
+    expect(screen.getByRole("dialog")).not.toHaveTextContent(STRINGS.glossary.newDiscovery);
+    expect(storedProgress()).toMatchObject({ xp: 5 });
+  });
+
+  it("plays 'Qual é o termo?' from the glossary and masters the terms it gets right", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const [first] = buildTermQuizRound(GLOSSARY_TERMS, [], () => 0);
+    await renderApp();
+    await userEvent.click(within(screen.getByRole("navigation", { name: STRINGS.hud.menu })).getByRole("button", { name: STRINGS.hud.glossary }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.glossary.startQuiz }));
+    expect(screen.getByRole("heading", { name: STRINGS.termQuiz.clue(first.clue) })).toBeVisible();
+
+    await userEvent.click(screen.getByRole("button", { name: first.term.term }));
+    expect(storedProgress()).toMatchObject({ xp: 10, masteredTermIds: [first.term.id], discoveredTermIds: [first.term.id] });
+
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.hud.back }));
+    expect(screen.getByRole("button", { name: STRINGS.glossary.cardLabel(first.term.term, STRINGS.glossary.termStatus.mastered) })).toBeVisible();
+  });
+
+  it("starts a fresh round on 'Jogar novamente'", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    await renderApp();
+    await userEvent.click(within(screen.getByRole("navigation", { name: STRINGS.hud.menu })).getByRole("button", { name: STRINGS.hud.glossary }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.glossary.startQuiz }));
+    for (let i = 0; i < 5; i++) {
+      const options = within(screen.getByRole("list", { name: STRINGS.termQuiz.optionsLabel })).getAllByRole("button");
+      await userEvent.click(options[0]);
+      await userEvent.click(screen.getByRole("button", { name: i === 4 ? STRINGS.common.seeResult : STRINGS.termQuiz.nextClue }));
+    }
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.common.playAgain }));
+    expect(screen.getByText(STRINGS.termQuiz.clueCounter(1, 5))).toBeVisible();
+  });
+
+  it("links glossary terms in a lesson's explanation and adds them to the album", async () => {
+    await renderApp();
+    await startNode("Serviços do bairro", STRINGS.path.startLesson);
+    const [question] = municipal.lessons[0].questions;
+    const linked = segmentByGlossary(question.explanation).find((segment) => segment.term);
+    expect(linked).toBeDefined();
+
+    await userEvent.click(screen.getByRole("button", { name: question.options.find((o) => o.isCorrect)?.text }));
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.quiz.verify }));
+    await userEvent.click(within(screen.getByRole("status")).getByRole("button", { name: linked?.text }));
+    expect(storedProgress()).toMatchObject({ xp: 20, discoveredTermIds: [linked?.term?.id] });
+  });
+
+  it("reads the term of the day from the path for a daily bonus", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 9, 27, 9));
+    const termOfDay = getTermOfDay("2026-10-27");
+    await renderApp();
+    await userEvent.click(screen.getByRole("button", { name: STRINGS.dashboard.termOfDayAction(10) }));
+    expect(screen.getByRole("dialog", { name: termOfDay.term })).toHaveTextContent(STRINGS.glossary.reward(15));
+    expect(storedProgress()).toMatchObject({ xp: 15, termOfDayReadDay: "2026-10-27", discoveredTermIds: [termOfDay.id] });
   });
 
   it("leaves a lesson midway and returns to the path", async () => {
