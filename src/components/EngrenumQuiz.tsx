@@ -3,8 +3,9 @@
 import { useState } from "react";
 import GlossaryText from "@/components/GlossaryText";
 import HudHeader from "@/components/HudHeader";
-import { INITIAL_LIVES, SPHERE_LABELS, XP_PER_CORRECT_ANSWER, getCivicTitle } from "@/data/levels";
+import { INITIAL_LIVES, XP_PER_CORRECT_ANSWER, getCivicTitle } from "@/data/levels";
 import { STRINGS } from "@/data/strings";
+import { toStepView } from "@/lib/session";
 import { playSound } from "@/lib/sound";
 import type { GameState, QuizSession } from "@/types/quiz";
 
@@ -41,10 +42,10 @@ export default function EngrenumQuiz({
   const [game, setGame] = useState<GameState>(INITIAL_GAME_STATE);
 
   const { currentIndex, lives, score, selectedOptionId, isSelectionLocked, isGameOver } = game;
-  const totalQuestions = session.questions.length;
-  const currentQuestion = session.questions[currentIndex];
-  const selectedOption = currentQuestion.options.find((o) => o.id === selectedOptionId);
-  const correctOption = currentQuestion.options.find((o) => o.isCorrect);
+  const totalQuestions = session.steps.length;
+  // Every mechanic (scenario, Fato ou Fake, glossary clue) is played as a prompt with options.
+  const step = toStepView(session.steps[currentIndex]);
+  const selectedOption = step.options.find((o) => o.id === selectedOptionId);
   const isAnswerCorrect = isSelectionLocked && (selectedOption?.isCorrect ?? false);
   const isLastQuestion = currentIndex === totalQuestions - 1;
   const hasWon = isGameOver && lives > 0;
@@ -183,7 +184,7 @@ export default function EngrenumQuiz({
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-rep-border bg-slate-100 px-3 py-1 font-brand text-xs font-bold uppercase tracking-wider text-rep-navy">
               <span className="h-2 w-2 rounded-full bg-rep-gold" />
-              {STRINGS.quiz.sphere(SPHERE_LABELS[currentQuestion.sphere])}
+              {step.badge}
             </span>
             <span className="font-brand text-xs font-semibold text-rep-muted">
               {STRINGS.quiz.phase(currentIndex + 1, totalQuestions)}
@@ -191,15 +192,16 @@ export default function EngrenumQuiz({
           </div>
 
           <div className="space-y-3 rounded-2xl border-2 border-rep-navy bg-white p-5 shadow-neo sm:p-6">
-            <p className="font-brand text-xs uppercase tracking-wider text-rep-muted">{STRINGS.quiz.scenarioLabel}</p>
+            <p className="font-brand text-xs uppercase tracking-wider text-rep-muted">{step.eyebrow}</p>
             <h2 className="text-lg font-bold leading-snug text-rep-navy sm:text-xl">
               {/* Glossary links only after verifying, so a definition never hints at the answer */}
-              {isSelectionLocked ? <GlossaryText text={currentQuestion.prompt} /> : currentQuestion.prompt}
+              {isSelectionLocked ? <GlossaryText text={step.prompt} /> : step.prompt}
             </h2>
+            {step.instruction && <p className="text-sm font-semibold text-rep-slate">{step.instruction}</p>}
           </div>
 
-          <ul className="space-y-3 pt-2">
-            {currentQuestion.options.map((option) => {
+          <ul className={step.layout === "split" ? "grid grid-cols-2 gap-3 pt-2" : "space-y-3 pt-2"}>
+            {step.options.map((option) => {
               const isSelected = option.id === selectedOptionId;
               let cardStyle = "border-slate-300 bg-white shadow-sm hover:-translate-y-0.5";
               let indicatorStyle = "border-slate-300";
@@ -224,7 +226,7 @@ export default function EngrenumQuiz({
               }
 
               return (
-                <li key={option.id}>
+                <li key={`${currentIndex}-${option.id}`}>
                   <button
                     type="button"
                     onClick={() => handleSelectOption(option.id)}
@@ -294,14 +296,14 @@ export default function EngrenumQuiz({
                       ? STRINGS.quiz.outOfLivesTitle
                       : STRINGS.quiz.wrongTitle}
                 </h3>
-                <p className="inline-block rounded-md bg-white/80 px-2 py-0.5 font-brand text-xs font-bold text-rep-navy ring-1 ring-rep-border">
-                  📖 {currentQuestion.constitutionalArticle}
-                </p>
-                {!isAnswerCorrect && correctOption && (
-                  <p className="text-sm font-bold text-rep-navy">{STRINGS.quiz.correctAnswer(correctOption.text)}</p>
+                {step.constitutionalArticle && (
+                  <p className="inline-block rounded-md bg-white/80 px-2 py-0.5 font-brand text-xs font-bold text-rep-navy ring-1 ring-rep-border">
+                    📖 {step.constitutionalArticle}
+                  </p>
                 )}
+                {!isAnswerCorrect && <p className="text-sm font-bold text-rep-navy">{step.correctAnswer}</p>}
                 <p className="text-sm font-medium leading-relaxed text-slate-700">
-                  <GlossaryText text={currentQuestion.explanation} />
+                  <GlossaryText text={step.explanation} />
                 </p>
               </div>
             </div>

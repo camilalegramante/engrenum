@@ -3,7 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { STRINGS } from "@/data/strings";
 import { playSound } from "@/lib/sound";
-import type { Question, QuizSession, QuizSessionKind } from "@/types/quiz";
+import { factOrFakeStep, quizStep, termStep } from "@/lib/steps";
+import type { GlossaryTerm } from "@/types/glossary";
+import type { Question, QuizSession, QuizSessionKind, SessionStep } from "@/types/quiz";
 import EngrenumQuiz from "./EngrenumQuiz";
 
 vi.mock("@/lib/sound", () => ({ playSound: vi.fn() }));
@@ -28,7 +30,7 @@ function makeSession(questionCount: number, kind: QuizSessionKind): QuizSession 
     kind,
     levelId: "municipal",
     title: "Serviços do bairro",
-    questions: Array.from({ length: questionCount }, (_, i) => makeQuestion(i + 1)),
+    steps: Array.from({ length: questionCount }, (_, i) => quizStep(makeQuestion(i + 1))),
   };
 }
 
@@ -89,11 +91,11 @@ describe("EngrenumQuiz", () => {
 
   it("links glossary terms in the scenario only after verifying, and in the explanation", async () => {
     const session = makeSession(1, "lesson");
-    session.questions[0] = {
-      ...session.questions[0],
+    session.steps[0] = quizStep({
+      ...makeQuestion(1),
       prompt: "Quem pode aumentar o imposto?",
       explanation: "Um decreto não basta.",
-    };
+    });
     render(
       <EngrenumQuiz
         session={session}
@@ -115,6 +117,79 @@ describe("EngrenumQuiz", () => {
 
     await userEvent.click(within(screen.getByRole("status")).getByRole("button", { name: "decreto" }));
     expect(screen.getByRole("dialog", { name: "Decreto" })).toHaveTextContent(STRINGS.glossary.capiExplains);
+  });
+
+  describe("mixed mechanics", () => {
+    function renderSteps(steps: SessionStep[]) {
+      const onCorrectAnswer = vi.fn();
+      const session: QuizSession = { ...makeSession(1, "lesson"), steps };
+      render(
+        <EngrenumQuiz
+          session={session}
+          xp={0}
+          streak={0}
+          isSoundEnabled
+          onToggleSound={vi.fn()}
+          onCorrectAnswer={onCorrectAnswer}
+          onComplete={vi.fn()}
+          onExit={vi.fn()}
+        />,
+      );
+      return onCorrectAnswer;
+    }
+
+    const card = {
+      id: 9,
+      speakerRole: "Candidato a Vereador",
+      statement: "Vou mudar o Código Penal.",
+      isLegitimate: false,
+      constitutionalArticle: "Art. 22, I da CF/88",
+      explanation: "Direito penal é competência da União.",
+    };
+
+    const terms: GlossaryTerm[] = ["veto", "sancao", "decreto", "quorum"].map((id) => ({
+      id,
+      term: `Termo ${id}`,
+      category: "legislation",
+      shortDefinition: `Definição de ${id}`,
+      practicalExample: `Exemplo de ${id}`,
+      aliases: [],
+    }));
+
+    it("plays a Fato ou Fake promise as a legitimate/illegal verdict", async () => {
+      const onCorrectAnswer = renderSteps([factOrFakeStep(card)]);
+      expect(screen.getByText(STRINGS.quiz.factOrFakeBadge)).toBeVisible();
+      expect(screen.getByText(card.speakerRole)).toBeVisible();
+      expect(screen.getByRole("heading", { name: STRINGS.swipe.statement(card.statement) })).toBeVisible();
+      expect(screen.getByText(STRINGS.quiz.factOrFakeInstruction)).toBeVisible();
+
+      await answer(STRINGS.quiz.legitimateOption);
+      expect(onCorrectAnswer).not.toHaveBeenCalled();
+      const feedback = screen.getByRole("status");
+      expect(feedback).toHaveTextContent(STRINGS.swipe.illegalVerdict);
+      expect(feedback).toHaveTextContent(card.constitutionalArticle);
+      expect(feedback).toHaveTextContent(card.explanation);
+    });
+
+    it("plays a glossary clue as a pick-the-term question", async () => {
+      const onCorrectAnswer = renderSteps([termStep(terms[0], terms)]);
+      expect(screen.getByText(STRINGS.quiz.termBadge)).toBeVisible();
+      expect(screen.getByText(STRINGS.termQuiz.clueLead)).toBeVisible();
+      expect(screen.getAllByRole("button", { pressed: false })).toHaveLength(4);
+
+      await answer("Termo veto");
+      expect(onCorrectAnswer).toHaveBeenCalledOnce();
+      const feedback = screen.getByRole("status");
+      expect(feedback).toHaveTextContent(STRINGS.quiz.correctTitle);
+      expect(feedback).toHaveTextContent("Exemplo de veto");
+      expect(feedback).not.toHaveTextContent("CF/88");
+    });
+
+    it("shows the term when the clue is missed", async () => {
+      renderSteps([termStep(terms[0], terms)]);
+      await answer("Termo sancao");
+      expect(screen.getByRole("status")).toHaveTextContent(STRINGS.termQuiz.answer("Termo veto"));
+    });
   });
 
   it("costs a life and shows the right answer on a mistake", async () => {

@@ -90,13 +90,13 @@ function NodePopover({
     if (node.status === "available") actionLabel = STRINGS.path.openChest;
     if (node.status === "completed") message = STRINGS.path.chestOpened;
   } else if (node.session) {
-    const scenarios = STRINGS.path.scenarios(node.session.questions.length);
+    const stepCount = STRINGS.path.stepCount(node.session.steps.length);
     if (node.kind === "challenge") {
-      subtitle = STRINGS.path.challengeSubtitle(scenarios);
+      subtitle = STRINGS.path.challengeSubtitle(stepCount);
       if (node.status === "current") actionLabel = STRINGS.path.startChallenge;
       if (node.status === "completed") actionLabel = STRINGS.path.redoChallenge;
     } else {
-      subtitle = STRINGS.path.lessonSubtitle(lessonNumber, lessonCount, scenarios);
+      subtitle = STRINGS.path.lessonSubtitle(lessonNumber, lessonCount, stepCount);
       if (node.status === "current") actionLabel = STRINGS.path.startLesson;
       if (node.status === "completed") actionLabel = STRINGS.path.replayLesson;
     }

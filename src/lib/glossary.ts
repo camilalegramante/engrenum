@@ -120,10 +120,30 @@ function shuffle<T>(items: T[], random: () => number): T[] {
   return shuffled;
 }
 
-/**
- * Builds a "Qual é o termo?" round: terms not yet mastered come first, and
- * distractors come from the same category whenever it has enough terms.
- */
+/** Deterministic pseudo-random numbers in [0, 1) from a text seed (fixed lesson content). */
+export function createSeededRandom(seed: string): () => number {
+  let state = 1;
+  for (const char of seed) state = (state * 31 + char.charCodeAt(0)) % 2147483647;
+  if (state === 0) state = 1;
+  return () => {
+    state = (state * 16807) % 2147483647;
+    return (state - 1) / 2147483646;
+  };
+}
+
+/** One "Qual é o termo?" clue: distractors come from the same category whenever it has enough terms. */
+export function buildTermQuestion(
+  term: GlossaryTerm,
+  terms: GlossaryTerm[] = GLOSSARY_TERMS,
+  random: () => number = Math.random,
+): TermQuizQuestion {
+  const sameCategory = shuffle(terms.filter((t) => t.id !== term.id && t.category === term.category), random);
+  const otherCategories = shuffle(terms.filter((t) => t.category !== term.category), random);
+  const distractors = [...sameCategory, ...otherCategories].slice(0, TERM_QUIZ_OPTIONS - 1);
+  return { term, clue: maskTerm(term.shortDefinition, term), options: shuffle([term, ...distractors], random) };
+}
+
+/** Builds a "Qual é o termo?" round, asking terms not yet mastered first. */
 export function buildTermQuizRound(
   terms: GlossaryTerm[],
   masteredTermIds: string[],
@@ -131,12 +151,7 @@ export function buildTermQuizRound(
 ): TermQuizQuestion[] {
   const pending = shuffle(terms.filter((t) => !masteredTermIds.includes(t.id)), random);
   const mastered = shuffle(terms.filter((t) => masteredTermIds.includes(t.id)), random);
-  return [...pending, ...mastered].slice(0, TERM_QUIZ_SIZE).map((term) => {
-    const sameCategory = shuffle(terms.filter((t) => t.id !== term.id && t.category === term.category), random);
-    const otherCategories = shuffle(terms.filter((t) => t.category !== term.category), random);
-    const distractors = [...sameCategory, ...otherCategories].slice(0, TERM_QUIZ_OPTIONS - 1);
-    return { term, clue: maskTerm(term.shortDefinition, term), options: shuffle([term, ...distractors], random) };
-  });
+  return [...pending, ...mastered].slice(0, TERM_QUIZ_SIZE).map((term) => buildTermQuestion(term, terms, random));
 }
 
 /** The same term for everyone on a given local day ("YYYY-MM-DD"), cycling through the glossary. */

@@ -69,6 +69,8 @@ engrenum/
 │   ├── lib/
 │   │   ├── glossary.ts          # GLOSSARY_TERMS, search, inline links, quiz rounds, term of the day, album progress
 │   │   ├── path.ts              # buildPath(): levels + progress → path units/nodes with status
+│   │   ├── session.ts           # toStepView(): any SessionStep → prompt, options and feedback for the quiz engine
+│   │   ├── steps.ts             # quizStep / factOrFakeStep / termStep builders for lessons
 │   │   ├── progress.ts          # localStorage-backed progress store
 │   │   └── sound.ts             # Web Audio API sound effects
 │   └── types/
@@ -114,10 +116,16 @@ export interface Question {
   explanation: string;
 }
 
+/** One lesson step, played with one of several mechanics (see "Varied mechanics"). */
+export type SessionStep =
+  | { kind: "quiz"; id: string; question: Question }
+  | { kind: "factOrFake"; id: string; card: SwipeCard }
+  | { kind: "term"; id: string; termQuestion: TermQuizQuestion };
+
 export interface Lesson {
   id: string;
   title: string;
-  questions: Question[];
+  steps: SessionStep[];
 }
 
 export interface Level {
@@ -129,7 +137,7 @@ export interface Level {
   /** Short pt-BR line the mascot says next to this level's path. */
   mascotTip: string;
   lessons: Lesson[];
-  /** Every question of the level; played together in the final challenge. */
+  /** Every quiz question of the level (the final challenge plays every lesson step). */
   questions: Question[];
 }
 
@@ -141,7 +149,7 @@ export interface QuizSession {
   kind: QuizSessionKind;
   levelId: string;
   title: string;
-  questions: Question[];
+  steps: SessionStep[];
 }
 
 export type PathNodeKind = "lesson" | "chest" | "challenge";
@@ -225,7 +233,7 @@ An array of `Question` objects. Level 1 (Municipal) currently has 10 scenarios; 
 Rules for new questions:
 - Unique numeric `id`; exactly one option with `isCorrect: true`.
 - `sphere` uses the English keys (`municipal` | `state` | `federal`); levels pick up questions by sphere automatically (`src/data/levels.ts`).
-- Levels with themed lessons (e.g. Municipal) must list every new question id in one of their `lessons` (`pickQuestions([...])`); a test fails otherwise. Levels without themed lessons use `chunkIntoLessons`.
+- Every new question id must appear in one lesson of its level as a `quiz(id)` step (`src/data/levels.ts`); a test fails otherwise. `chunkIntoLessons` only makes quiz steps, so it can't satisfy the mixed-mechanics rule for real content: write themed lessons.
 - Every question cites its CF/88 basis in `constitutionalArticle`.
 
 Difficulty rules (the answer must never be obvious):
@@ -244,16 +252,23 @@ Inspired by language-learning apps (a winding path of steps, a mascot, rewards),
 - **Journey panel** (`JourneyPanel.tsx`): civic rank with a progress bar to the next rank (`getRankProgress`) and the **daily mission** ("Complete 1 lição hoje", done when `lastPlayedDay` is today). Two cards side by side on mobile, sticky left column on desktop (`lg`).
 - **Desktop layout (`lg`):** three columns — journey panel (left) | learning path (center) | quick modes: "Fato ou Fake Eleitoral" and the term of the day (right, sticky). Below `lg`, a fixed **bottom bar** (`BottomNav.tsx`) replaces the side columns: 🗺️ Trilha and 👤 Perfil are tabs (path / journey panel), ⚡ Modo rápido starts "Fato ou Fake Eleitoral", ☀️ Termo do dia opens the term (red dot while the daily bonus is pending), 📖 Glossário opens the glossary. The header's "Glossário" menu item is desktop-only.
 - **One unit per level** (`LearningPathUnit.tsx`): a banner ("Nível N · Sphere", title, subtitle, `done/total ETAPAS`, "✓ CONCLUÍDO" or "EM BREVE"), then a **winding path** of round nodes, plus the **capybara mascot** (`Mascot.tsx`) beside it with the level's `mascotTip`. The mascot alternates sides per unit and the path winds away from it.
-- **Path order per level** (`buildPath` in `src/lib/path.ts`): lessons in order → a **reward chest** after the 2nd lesson → the **Desafio final** (all questions of the level).
+- **Path order per level** (`buildPath` in `src/lib/path.ts`): lessons in order → a **reward chest** after the 2nd lesson → the **Desafio final** (every step of every lesson, so it mixes mechanics too).
   - Lessons and the challenge are sequential: each unlocks when the previous one is completed. The first not-done step is `current` (navy node, pulse ring and a bobbing "JOGAR" callout).
   - The chest is a side reward: `available` once the lesson before it is done, it never blocks the next lesson, and opening it grants `CHEST_XP` (+20) once.
   - Completing the **Desafio final** completes the level (`completedLevelIds`), counts all its lessons as done, and unlocks the next level.
   - Levels without questions are "EM BREVE": dashed ghost nodes and a napping, grayscale capybara.
-- **Node popover:** tapping a node toggles a card below it with title, details ("Lição 2 de 4 · 3 cenários") and the action ("Começar", "Jogar de novo", "Encarar desafio", "Refazer desafio", "Abrir baú"); locked nodes explain how to unlock.
-- **Lessons** are hand-picked, themed groups of 2–3 questions defined in `src/data/levels.ts` (e.g. "Serviços do bairro"). Levels without themed lessons fall back to `chunkIntoLessons` (3 per lesson).
+- **Node popover:** tapping a node toggles a card below it with title, details ("Lição 2 de 4 · 5 desafios") and the action ("Começar", "Jogar de novo", "Encarar desafio", "Refazer desafio", "Abrir baú"); locked nodes explain how to unlock.
+- **Lessons** are hand-picked, themed sequences of 4–5 steps defined in `src/data/levels.ts` (e.g. "Serviços do bairro"), built with `quiz(id)`, `factOrFake(cardId)` and `term(termId)`.
+
+### Varied mechanics (always)
+**Every playable step sequence must vary its game mechanics, so playing never gets boring.** A lesson is never a run of identical questions: it alternates the multiple-choice scenario (`quiz`), the "Fato ou Fake" campaign promise (`factOrFake`, legitimate × illegal) and the glossary clue (`term`, "Qual é o termo?"), and any mechanic added later joins the rotation.
+- Rules enforced by `src/data/levels.test.ts`: each lesson starts with a scenario, uses all three mechanics, and never plays the same mechanic twice in a row; step ids never repeat within a level.
+- Order steps so one never hints at another's answer (e.g. a glossary clue comes after the scenario its definition could give away).
+- New mechanics: add a `SessionStep` kind, a builder in `src/lib/steps.ts`, and its rendering in `toStepView` (`src/lib/session.ts`), which normalizes every step into a prompt + options + feedback for the quiz engine.
+- When designing new screens or game modes, apply the same principle: mix interactions instead of repeating one.
 
 ### Quiz (`EngrenumQuiz.tsx`)
-Plays one `QuizSession` (a lesson or a challenge); state lives in a single `GameState`.
+Plays one `QuizSession` (a lesson or a challenge) step by step, whatever the mechanic (via `toStepView`); state lives in a single `GameState`.
 - Select an option → press **"Verificar Resposta"** → options lock (`isSelectionLocked`) and the **feedback drawer** slides up with the result, the CF/88 article, the correct answer (when wrong), and the explanation.
 - Correct: +1 score, +15 XP (`XP_PER_CORRECT_ANSWER`). Wrong: −1 life and a shake animation.
 - **3 lives per session** (`INITIAL_LIVES`). At 0 lives → "Credibilidade Esgotada!" dialog (retry or back to the path).

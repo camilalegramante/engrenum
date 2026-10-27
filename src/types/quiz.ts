@@ -1,3 +1,6 @@
+import type { TermQuizQuestion } from "@/types/glossary";
+import type { SwipeCard } from "@/types/swipe";
+
 export type Sphere = "municipal" | "state" | "federal";
 
 export interface Option {
@@ -15,10 +18,23 @@ export interface Question {
   explanation: string;
 }
 
+/**
+ * One step of a lesson, played with one of several mechanics so a lesson never feels
+ * repetitive: a multiple-choice scenario, a "Fato ou Fake" campaign promise, or a
+ * "Qual é o termo?" glossary clue.
+ */
+export type SessionStep =
+  | { kind: "quiz"; id: string; question: Question }
+  | { kind: "factOrFake"; id: string; card: SwipeCard }
+  | { kind: "term"; id: string; termQuestion: TermQuizQuestion };
+
+export type SessionStepKind = SessionStep["kind"];
+
 export interface Lesson {
   id: string;
   title: string;
-  questions: Question[];
+  /** Mixed mechanics, never the same one twice in a row (enforced in levels.test.ts). */
+  steps: SessionStep[];
 }
 
 export interface Level {
@@ -30,7 +46,7 @@ export interface Level {
   /** Short pt-BR line the mascot says next to this level's path. */
   mascotTip: string;
   lessons: Lesson[];
-  /** Every question of the level; played together in the final challenge. */
+  /** Every quiz question of the level (the final challenge plays every lesson step). */
   questions: Question[];
 }
 
@@ -42,7 +58,7 @@ export interface QuizSession {
   kind: QuizSessionKind;
   levelId: string;
   title: string;
-  questions: Question[];
+  steps: SessionStep[];
 }
 
 export type PathNodeKind = "lesson" | "chest" | "challenge";

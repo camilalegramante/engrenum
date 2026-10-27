@@ -5,7 +5,8 @@ import { LEVELS } from "@/data/levels";
 import { STRINGS } from "@/data/strings";
 import swipeCards from "@/data/swipeCards.json";
 import { GLOSSARY_TERMS, buildTermQuizRound, getTermOfDay, segmentByGlossary } from "@/lib/glossary";
-import type { Question } from "@/types/quiz";
+import { toStepView } from "@/lib/session";
+import type { SessionStep } from "@/types/quiz";
 
 vi.mock("@/lib/sound", () => ({ playSound: vi.fn() }));
 
@@ -28,12 +29,12 @@ async function startNode(nodeTitle: string, actionLabel: string) {
   await userEvent.click(screen.getByRole("button", { name: actionLabel }));
 }
 
-async function answerAllCorrectly(questions: Question[]) {
-  for (const [i, question] of questions.entries()) {
-    const correct = question.options.find((o) => o.isCorrect);
+async function answerAllCorrectly(steps: SessionStep[]) {
+  for (const [i, step] of steps.entries()) {
+    const correct = toStepView(step).options.find((o) => o.isCorrect);
     await userEvent.click(screen.getByRole("button", { name: correct?.text }));
     await userEvent.click(screen.getByRole("button", { name: STRINGS.quiz.verify }));
-    const isLast = i === questions.length - 1;
+    const isLast = i === steps.length - 1;
     await userEvent.click(screen.getByRole("button", { name: isLast ? "Concluir Nível →" : STRINGS.quiz.nextQuestion }));
   }
 }
@@ -57,11 +58,16 @@ describe("EngrenumApp", () => {
   it("plays a lesson, awards XP and records it on the path", async () => {
     await renderApp();
     await startNode("Serviços do bairro", STRINGS.path.startLesson);
-    expect(screen.getByRole("heading", { name: municipal.lessons[0].questions[0].prompt })).toBeVisible();
+    const lessonSteps = municipal.lessons[0].steps;
+    expect(screen.getByRole("heading", { name: toStepView(lessonSteps[0]).prompt })).toBeVisible();
 
-    await answerAllCorrectly(municipal.lessons[0].questions);
+    await answerAllCorrectly(lessonSteps);
     expect(screen.getByRole("heading", { name: STRINGS.quiz.perfectLesson })).toBeVisible();
-    expect(storedProgress()).toMatchObject({ xp: 45, streak: 1, completedLessonIds: ["municipal-1"] });
+    expect(storedProgress()).toMatchObject({
+      xp: lessonSteps.length * 15,
+      streak: 1,
+      completedLessonIds: ["municipal-1"],
+    });
 
     await userEvent.click(screen.getByRole("button", { name: STRINGS.common.backToPath }));
     expect(screen.getByRole("button", { name: STRINGS.path.nodeLabel("Serviços do bairro", STRINGS.path.status.completed) })).toBeVisible();
@@ -138,7 +144,8 @@ describe("EngrenumApp", () => {
   it("links glossary terms in a lesson's explanation and adds them to the album", async () => {
     await renderApp();
     await startNode("Serviços do bairro", STRINGS.path.startLesson);
-    const [question] = municipal.lessons[0].questions;
+    const [firstStep] = municipal.lessons[0].steps;
+    const question = firstStep.kind === "quiz" ? firstStep.question : municipal.questions[0];
     const linked = segmentByGlossary(question.explanation).find((segment) => segment.term);
     expect(linked).toBeDefined();
 
@@ -185,10 +192,11 @@ describe("EngrenumApp", () => {
     );
     await renderApp();
     await startNode(STRINGS.path.challengeTitle, STRINGS.path.startChallenge);
-    await answerAllCorrectly(municipal.questions);
+    await answerAllCorrectly(municipal.lessons.flatMap((lesson) => lesson.steps));
 
     expect(screen.getByRole("heading", { name: "Guardião da Constituição" })).toBeVisible();
-    expect(storedProgress()).toMatchObject({ xp: 150, completedLevelIds: ["municipal"] });
+    const stepCount = municipal.lessons.flatMap((lesson) => lesson.steps).length;
+    expect(storedProgress()).toMatchObject({ xp: stepCount * 15, completedLevelIds: ["municipal"] });
 
     await userEvent.click(screen.getByRole("button", { name: STRINGS.common.backToPath }));
     expect(screen.getByRole("region", { name: "No Meu Bairro" })).toHaveTextContent(STRINGS.path.levelCompleted);

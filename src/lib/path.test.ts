@@ -82,7 +82,9 @@ describe("buildPath", () => {
       kind: "challenge",
       title: STRINGS.path.challengeSessionTitle("No Meu Bairro"),
     });
-    expect(municipal.nodes.at(-1)?.session?.questions).toHaveLength(10);
+    const allLessonSteps = LEVELS[0].lessons.flatMap((lesson) => lesson.steps);
+    expect(municipal.nodes.at(-1)?.session?.steps).toEqual(allLessonSteps);
+    expect(municipal.nodes[0].session?.steps).toBe(LEVELS[0].lessons[0].steps);
     expect(municipal.nodes[2].session).toBeUndefined();
   });
 
@@ -100,7 +102,7 @@ describe("buildPath", () => {
       LEVELS[0],
       {
         ...LEVELS[1],
-        lessons: [{ id: "state-1", title: "Lição 1", questions: LEVELS[0].questions.slice(0, 2) }],
+        lessons: [{ id: "state-1", title: "Lição 1", steps: LEVELS[0].lessons[0].steps.slice(0, 2) }],
         questions: LEVELS[0].questions.slice(0, 2),
       },
     ];

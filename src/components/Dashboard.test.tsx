@@ -5,6 +5,7 @@ import { LEVELS } from "@/data/levels";
 import { STRINGS } from "@/data/strings";
 import { TERM_OF_DAY_XP, getTermOfDay } from "@/lib/glossary";
 import { INITIAL_PROGRESS, type Progress } from "@/lib/progress";
+import { quizStep } from "@/lib/steps";
 import type { Level } from "@/types/quiz";
 import Dashboard from "./Dashboard";
 
@@ -162,7 +163,7 @@ describe("Dashboard", () => {
     await userEvent.click(node("Serviços do bairro"));
 
     expect(node("Serviços do bairro")).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByText(STRINGS.path.lessonSubtitle(1, 4, STRINGS.path.scenarios(3)))).toBeVisible();
+    expect(screen.getByText(STRINGS.path.lessonSubtitle(1, 4, STRINGS.path.stepCount(LEVELS[0].lessons[0].steps.length)))).toBeVisible();
     await userEvent.click(screen.getByRole("button", { name: STRINGS.path.startLesson }));
     expect(onStartSession).toHaveBeenCalledWith(expect.objectContaining({ id: "municipal-1", kind: "lesson" }));
   });
@@ -177,7 +178,7 @@ describe("Dashboard", () => {
   it("explains how to unlock a locked step", async () => {
     renderDashboard();
     await userEvent.click(node(STRINGS.path.challengeTitle));
-    expect(screen.getByText(STRINGS.path.challengeSubtitle(STRINGS.path.scenarios(10)))).toBeVisible();
+    expect(screen.getByText(STRINGS.path.challengeSubtitle(STRINGS.path.stepCount(LEVELS[0].lessons.flatMap((l) => l.steps).length)))).toBeVisible();
     expect(screen.getByText(STRINGS.path.lockedMessage)).toBeVisible();
     expect(screen.queryByRole("button", { name: STRINGS.path.startChallenge })).not.toBeInTheDocument();
   });
@@ -227,7 +228,7 @@ describe("Dashboard", () => {
     const question = LEVELS[0].questions[0];
     const levels: Level[] = [
       LEVELS[0],
-      { ...LEVELS[1], lessons: [{ id: "state-1", title: "Única", questions: [question] }], questions: [question] },
+      { ...LEVELS[1], lessons: [{ id: "state-1", title: "Única", steps: [quizStep(question)] }], questions: [question] },
     ];
     renderDashboard({}, levels);
     const state = screen.getByRole("region", { name: "Ordem e Região" });
@@ -236,14 +237,14 @@ describe("Dashboard", () => {
     expect(within(state).getByRole("img", { name: STRINGS.mascot.sleepy })).toBeVisible();
   });
 
-  it("uses the singular for single-scenario lessons", async () => {
+  it("uses the singular for single-step lessons", async () => {
     const question = LEVELS[0].questions[0];
     const levels: Level[] = [
-      { ...LEVELS[0], lessons: [{ id: "municipal-1", title: "Única", questions: [question] }], questions: [question] },
+      { ...LEVELS[0], lessons: [{ id: "municipal-1", title: "Única", steps: [quizStep(question)] }], questions: [question] },
     ];
     renderDashboard({}, levels);
     await userEvent.click(node("Única"));
-    expect(screen.getByText(STRINGS.path.lessonSubtitle(1, 1, STRINGS.path.scenarios(1)))).toBeVisible();
+    expect(screen.getByText(STRINGS.path.lessonSubtitle(1, 1, STRINGS.path.stepCount(1)))).toBeVisible();
   });
 
   describe("journey panel", () => {

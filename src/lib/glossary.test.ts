@@ -4,7 +4,9 @@ import {
   GLOSSARY_TERMS,
   TERM_QUIZ_OPTIONS,
   TERM_QUIZ_SIZE,
+  buildTermQuestion,
   buildTermQuizRound,
+  createSeededRandom,
   filterGlossaryTerms,
   getAlbumProgress,
   getTermOfDay,
@@ -177,5 +179,37 @@ describe("getAlbumProgress", () => {
       "powers",
       "elections",
     ]);
+  });
+});
+
+describe("createSeededRandom", () => {
+  it("repeats the same sequence for the same seed, within [0, 1)", () => {
+    const a = createSeededRandom("veto");
+    const b = createSeededRandom("veto");
+    const values = Array.from({ length: 5 }, () => a());
+    expect(Array.from({ length: 5 }, () => b())).toEqual(values);
+    for (const value of values) {
+      expect(value).toBeGreaterThanOrEqual(0);
+      expect(value).toBeLessThan(1);
+    }
+    expect(createSeededRandom("sancao")()).not.toBe(values[0]);
+  });
+
+  it("works with an empty seed", () => {
+    expect(createSeededRandom("")()).toBeLessThan(1);
+  });
+});
+
+describe("buildTermQuestion", () => {
+  it("masks the term in its clue and offers it among the options", () => {
+    const question = buildTermQuestion(veto, terms, () => 0.5);
+    expect(question.clue).toBe(maskTerm(veto.shortDefinition, veto));
+    expect(question.options).toContain(veto);
+    expect(question.options).toHaveLength(terms.length);
+  });
+
+  it("uses the shipped glossary and Math.random by default", () => {
+    const [first] = GLOSSARY_TERMS;
+    expect(buildTermQuestion(first).options).toHaveLength(TERM_QUIZ_OPTIONS);
   });
 });

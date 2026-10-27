@@ -123,13 +123,13 @@ describe("registerSessionCompletion", () => {
     termOfDayReadDay: null,
     isSoundEnabled: true,
   };
-  const lesson: QuizSession = { id: "municipal-1", kind: "lesson", levelId: "municipal", title: "Lição", questions: [] };
+  const lesson: QuizSession = { id: "municipal-1", kind: "lesson", levelId: "municipal", title: "Lição", steps: [] };
   const challenge: QuizSession = {
     id: "municipal-challenge",
     kind: "challenge",
     levelId: "municipal",
     title: "Desafio",
-    questions: [],
+    steps: [],
   };
 
   beforeEach(() => {

@@ -52,7 +52,7 @@ export function buildPath(levels: Level[], progress: PathProgress): PathUnit[] {
         kind: "lesson",
         levelId: level.id,
         title: lesson.title,
-        questions: lesson.questions,
+        steps: lesson.steps,
       };
       // Finishing the final challenge also counts every lesson of the level as done.
       pushSequentialNode(
@@ -73,7 +73,8 @@ export function buildPath(levels: Level[], progress: PathProgress): PathUnit[] {
             kind: "challenge",
             levelId: level.id,
             title: STRINGS.path.challengeSessionTitle(level.title),
-            questions: level.questions,
+            // Every step of every lesson, so the challenge mixes mechanics too
+            steps: level.lessons.flatMap((lesson) => lesson.steps),
           },
         },
         isCompleted,

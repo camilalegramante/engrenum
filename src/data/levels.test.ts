@@ -80,7 +80,9 @@ describe("LEVELS", () => {
   });
 
   it.each(LEVELS)("level $id places every question in exactly one lesson", (level) => {
-    const lessonQuestionIds = level.lessons.flatMap((lesson) => lesson.questions.map((q) => q.id));
+    const lessonQuestionIds = level.lessons.flatMap((lesson) =>
+      lesson.steps.flatMap((step) => (step.kind === "quiz" ? [step.question.id] : [])),
+    );
     expect([...lessonQuestionIds].sort((a, b) => a - b)).toEqual(level.questions.map((q) => q.id).sort((a, b) => a - b));
   });
 
@@ -93,9 +95,28 @@ describe("LEVELS", () => {
       "De olho no dinheiro",
     ]);
     for (const lesson of municipal.lessons) {
-      expect(lesson.questions.length).toBeGreaterThanOrEqual(2);
-      expect(lesson.questions.length).toBeLessThanOrEqual(3);
+      expect(lesson.steps.length).toBeGreaterThanOrEqual(4);
+      expect(lesson.steps.length).toBeLessThanOrEqual(5);
     }
+  });
+
+  // Lessons must not feel repetitive (see CLAUDE.md, "Varied mechanics").
+  describe.each(LEVELS.flatMap((level) => level.lessons))("lesson $id", (lesson) => {
+    const kinds = lesson.steps.map((step) => step.kind);
+
+    it("starts with a scenario and mixes all three mechanics", () => {
+      expect(kinds[0]).toBe("quiz");
+      expect(new Set(kinds)).toEqual(new Set(["quiz", "factOrFake", "term"]));
+    });
+
+    it("never plays the same mechanic twice in a row", () => {
+      for (let i = 1; i < kinds.length; i++) expect(kinds[i]).not.toBe(kinds[i - 1]);
+    });
+  });
+
+  it.each(LEVELS)("level $id never repeats a step", (level) => {
+    const ids = level.lessons.flatMap((lesson) => lesson.steps.map((step) => step.id));
+    expect(new Set(ids).size).toBe(ids.length);
   });
 
   it("gives every level a mascot tip", () => {
@@ -108,7 +129,7 @@ describe("chunkIntoLessons", () => {
 
   it("groups questions into numbered lessons of the given size", () => {
     const lessons = chunkIntoLessons("state", questions, 3);
-    expect(lessons.map((l) => [l.id, l.title, l.questions.length])).toEqual([
+    expect(lessons.map((l) => [l.id, l.title, l.steps.length])).toEqual([
       ["state-1", "Lição 1", 3],
       ["state-2", "Lição 2", 3],
       ["state-3", "Lição 3", 1],
